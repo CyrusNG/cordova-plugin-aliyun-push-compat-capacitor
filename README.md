@@ -157,7 +157,7 @@ const {
 #include? "Env/Env-App.xcconfig"
 ```
 
-[<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_xcconfig_content.png" height="88"/>](iOS_xcconfig_content.png)
+[<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_xcconfig_content.png" height="50%"/>](iOS_xcconfig_content.png)
 
 3、Env-App.xcconfig内容留空（因为脚本会读.env文件并写入此文件）
 
@@ -184,7 +184,7 @@ targetExp="/^(${ID_KEY}|${SECRET_KEY}).*/!d"
 sed -E $targetExp $dotEnvFilePath > $envAppConfigPath
 ```
 
-[<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_add_script_in_scheme.png" height="495"/>](iOS_add_script_in_scheme.png)
+[<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_add_script_in_scheme.png" height="50%"/>](iOS_add_script_in_scheme.png)
 
 步骤四：在Info.plist加入相应key和dict：
 
@@ -200,7 +200,7 @@ sed -E $targetExp $dotEnvFilePath > $envAppConfigPath
   </dict>
 ```
 
-[<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_update_info_plist.png" height="164"/>](iOS_update_info_plist.png)
+[<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_update_info_plist.png" height="50%"/>](iOS_update_info_plist.png)
 
 步骤五：在代码中读取Info.plist获取相关Id和Key`（插件内部实现，无需手动设置）`
 
