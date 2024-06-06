@@ -1,0 +1,40 @@
+{
+  "_resolved": "git+https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor.git",
+  "author": {
+    "name": "tiankong"
+  },
+  "bugs": {
+    "url": "https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/issues"
+  },
+  "bundleDependencies": false,
+  "cordova": {
+    "id": "cordova-plugin-aliyun-push-compat-capacitor",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "deprecated": false,
+  "description": "Cordova Push Plugin,use Aliyun SDK",
+  "engines": [
+    {
+      "name": "cordova-android",
+      "version": ">=5.0.0"
+    }
+  ],
+  "homepage": "https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor.git#readme",
+  "keywords": [
+    "cordova",
+    "aliyun",
+    "push",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "license": "",
+  "name": "cordova-plugin-aliyun-push-compat-capacitor",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor.git"
+  },
+  "version": "1.0.0"
+}

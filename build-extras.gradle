@@ -1,0 +1,69 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        mavenLocal()
+        // 配置HMS Core SDK的Maven仓地址。
+        maven {
+            url 'https://developer.huawei.com/repo/'
+        }
+        maven {
+            url 'http://maven.aliyun.com/nexus/content/repositories/releases/'
+            name 'aliyun'//一定要添加这个配置
+            allowInsecureProtocol = true
+        }
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+    mavenLocal()
+    // 配置HMS Core SDK的Maven仓地址。
+    maven {
+        url 'https://developer.huawei.com/repo/'
+    }
+    maven {
+        url 'http://maven.aliyun.com/nexus/content/repositories/releases/'
+        name 'aliyun'//一定要添加这个配置
+        allowInsecureProtocol = true
+    }
+}
+
+android {
+    defaultConfig {
+        manifestPlaceholders.ALIYUN_PUSH_DEBUG = project.hasProperty('aliyunPushDebug') ? rootProject.ext.aliyunPushDebug : false
+        manifestPlaceholders.ALIYUN_PUSH_CHANNEL_ID = project.hasProperty('aliyunPushChannelId') ? rootProject.ext.aliyunPushChannelId : 1
+        manifestPlaceholders.EMAS_ANDROID_APP_KEY = System.props.EMAS_ANDROID_APP_KEY
+        manifestPlaceholders.EMAS_ANDROID_APP_SECRET = System.props.EMAS_ANDROID_APP_SECRET
+        manifestPlaceholders.EMAS_MI_APP_ID = System.props.EMAS_MI_APP_ID
+        manifestPlaceholders.EMAS_MI_APP_KEY = System.props.EMAS_MI_APP_KEY
+        manifestPlaceholders.EMAS_HUAWEI_APP_ID = System.props.EMAS_HUAWEI_APP_ID
+        manifestPlaceholders.EMAS_HONOR_APP_ID = System.props.EMAS_HONOR_APP_ID
+        manifestPlaceholders.EMAS_VIVO_APP_ID = System.props.EMAS_VIVO_APP_ID
+        manifestPlaceholders.EMAS_VIVO_APP_KEY = System.props.EMAS_VIVO_APP_KEY
+        manifestPlaceholders.EMAS_OPPO_APP_KEY = System.props.EMAS_OPPO_APP_KEY
+        manifestPlaceholders.EMAS_OPPO_APP_SECRET = System.props.EMAS_OPPO_APP_SECRET
+        manifestPlaceholders.EMAS_MEIZU_APP_ID = System.props.EMAS_MEIZU_APP_ID
+        manifestPlaceholders.EMAS_MEIZU_APP_KEY = System.props.EMAS_MEIZU_APP_KEY
+    }
+}
+
+dependencies {
+    implementation 'com.aliyun.ams:alicloud-android-push:3.9.0'
+    //小米依赖
+    implementation 'com.aliyun.ams:alicloud-android-third-push-xiaomi:3.9.0'
+    //华为依赖
+    implementation 'com.aliyun.ams:alicloud-android-third-push-huawei:3.9.0'
+    //荣耀依赖
+    implementation 'com.aliyun.ams:alicloud-android-third-push-honor:3.9.0'
+    //OPPO依赖
+    implementation 'com.aliyun.ams:alicloud-android-third-push-oppo:3.9.0'
+    //vivo依赖
+    implementation 'com.aliyun.ams:alicloud-android-third-push-vivo:3.9.0'
+    //魅族依赖
+    implementation 'com.aliyun.ams:alicloud-android-third-push-meizu:3.9.0'
+    //谷歌依赖
+    implementation 'com.aliyun.ams:alicloud-android-third-push-fcm:3.9.0'
+
+}

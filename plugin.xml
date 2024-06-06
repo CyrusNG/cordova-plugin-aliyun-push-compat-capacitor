@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-aliyun-push" version="1.2.3"
+    xmlns="http://apache.org/cordova/ns/plugins/1.0">
+    <name>Aliyun push</name>
+    <description>Cordova 阿里云移动推送插件,包含iOS、Android(涵盖小米、华为、荣耀、VIVO、OPPO、魅族厂商通道)</description>
+    <license>Apache 2.0</license>
+    <keywords>Cordova,Aliyun,Push,AliyunPush,MiPush,HuaweiPush,HonorPush,VivoPush,OppoPush,MeizuPush</keywords>
+    <js-module src="www/aliyunpush.js" name="AliyunPush">
+        <clobbers target="AliyunPush" />
+    </js-module>
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="AliyunPush">
+                <param name="android-package" value="com.alipush.AliyunPush" />
+            </feature>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <!-- <meta-data android:name="aliyun_enable_debug" android:value="${ALIYUN_PUSH_DEBUG}"/> -->
+            <meta-data android:name="ALIYUN_PUSH_DEBUG" android:value="${ALIYUN_PUSH_DEBUG}"/>
+            <meta-data android:name="CHANNEL_ID" android:value="${ALIYUN_PUSH_CHANNEL_ID}"/>
+            <meta-data android:name="com.alibaba.app.appkey" android:value="${EMAS_ANDROID_APP_KEY}" />
+            <meta-data android:name="com.alibaba.app.appsecret" android:value="${EMAS_ANDROID_APP_SECRET}" />
+            <meta-data android:name="MI_PUSH_APP_ID" android:value="${EMAS_MI_APP_ID}"/>
+            <meta-data android:name="MI_PUSH_APP_KEY" android:value="${EMAS_MI_APP_KEY}"/>
+            <meta-data android:name="com.huawei.hms.client.appid" android:value="appid=${EMAS_HUAWEI_APP_ID}"/>
+            <meta-data android:name="com.hihonor.push.app_id" android:value="appid=${EMAS_HONOR_APP_ID}"/>
+            <meta-data android:name="com.vivo.push.app_id" android:value="${EMAS_VIVO_APP_ID}"/>
+            <meta-data android:name="com.vivo.push.api_key" android:value="${EMAS_VIVO_APP_KEY}"/>
+            <meta-data android:name="OPPO_PUSH_APP_KEY" android:value="${EMAS_OPPO_APP_KEY}"/>
+            <meta-data android:name="OPPO_PUSH_APP_SECRET" android:value="${EMAS_OPPO_APP_SECRET}"/>
+            <meta-data android:name="MZ_PUSH_APP_ID" android:value="${EMAS_MEIZU_APP_ID}"/>
+            <meta-data android:name="MZ_PUSH_APP_KEY" android:value="${EMAS_MEIZU_APP_KEY}"/>
+            <activity android:name="com.alipush.PopupPushActivity" android:exported="true" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            <receiver android:exported="false" android:name="com.alipush.PushMessageReceiver">
+                <intent-filter>
+                    <action android:name="com.alibaba.push2.action.NOTIFICATION_OPENED" />
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="com.alibaba.push2.action.NOTIFICATION_REMOVED" />
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="com.alibaba.sdk.android.push.RECEIVE" />
+                </intent-filter>
+            </receiver>
+        </config-file>
+        <!-- Maybe need add manually -->
+        <config-file parent="/*" target="res/values/strings.xml">
+            <string name="aliyun_dialog_title">消息提醒需要通知权限</string>
+            <string name="aliyun_dialog_message">请前往设置打开应用通知权限。</string>
+            <string name="aliyun_dialog_negative_text">忽略</string>
+            <string name="aliyun_dialog_positive_text">设置</string>
+        </config-file>
+        <source-file src="src/android/PushUtils.java" target-dir="src/com/alipush" />
+        <source-file src="src/android/AliyunPush.java" target-dir="src/com/alipush" />
+        <!-- <source-file src="src/android/PushApplication.java" target-dir="src/com/alipush" /> -->
+        <source-file src="src/android/PushMessageReceiver.java" target-dir="src/com/alipush" />
+        <source-file src="src/android/PopupPushActivity.java" target-dir="src/com/alipush" />
+        <!-- V3.9.0 framework -->
+        <framework src="build-extras.gradle" custom="true" type="gradleReference" />
+    </platform>
+    <!-- ios -->
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="AliyunPush">
+                <param name="ios-package" value="AliyunPush" />
+            </feature>
+        </config-file>
+        <config-file parent="UIBackgroundModes" target="*-Info.plist">
+            <array>
+                <string>remote-notification</string>
+            </array>
+        </config-file>
+        <config-file parent="aps-environment" target="*-Debug.plist">
+            <string>development</string>
+        </config-file>
+        <config-file parent="aps-environment" target="*-Release.plist">
+            <string>production</string>
+        </config-file>
+        <!-- Maybe need add manually -->
+        <config-file parent="Aliyun Push Config" target="*-Info.plist">
+            <dict>
+                <key>Debug</key>
+                <false/>
+                <key>App Key</key>
+                <string>$(EMAS_IOS_APP_KEY)</string>
+                <key>App Secret</key>
+                <string>$(EMAS_IOS_APP_SECRET)</string>
+            </dict>
+        </config-file>
+        <header-file src="src/ios/Plugins/AliyunPushPlugin.h" />
+        <source-file src="src/ios/Plugins/AliyunPushPlugin.m" />
+        <header-file src="src/ios/Plugins/AliyunNotificationLauncher.h" />
+        <source-file src="src/ios/Plugins/AliyunNotificationLauncher.m" />
+        <header-file src="src/ios/Plugins/AliyunPushDelegate.h" />
+        <source-file src="src/ios/Plugins/AliyunPushDelegate.m" />
+        <framework src="libz.tbd" />
+        <framework src="UserNotifications.framework" />
+        <framework src="libsqlite3.tbd" />
+        <framework src="libresolv.tbd" />
+        <framework src="CoreTelephony.framework" />
+        <framework src="SystemConfiguration.framework" />
+        <!-- V2.1.0 framework -->
+        <framework src="src/ios/Aliyun.frameworks/AlicloudUtils.xcframework" custom="true" />
+        <framework src="src/ios/Aliyun.frameworks/CloudPushSDK.xcframework" custom="true" />
+        <framework src="src/ios/Aliyun.frameworks/UTDID.xcframework" custom="true" />
+    </platform>
+</plugin>
