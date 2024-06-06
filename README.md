@@ -112,21 +112,21 @@ const {
 `思路：添加Build前脚本 -> 读取.evn文件 -> 写入Env-App.xcconfig -> Info.plist使用xcconfig变量 -> 代码读取Info.plist`
 步骤一：创建App.debug.xcconfig / App.release.xcconfig / Env-App.xcconfig 文件
 1、项目结构如下：
-![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/master/screenshoot/iOS_add_xcconfig.png)
+![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_add_xcconfig.png)
 2、在App.debug.xconfig / App.release.xconfig内include相应的Pods和Env的xcconfig：
 ```
 //根据不同的环境(debug/release)修改以下对应的Pods的xcconfig路径
 #include? "Pods/Target Support Files/Pods-App/Pods-App.XXXXXXXX.xcconfig"
 #include? "Env/Env-App.xcconfig"
 ```
-![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/master/screenshoot/iOS_xcconfig_content.png)
+![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_xcconfig_content.png)
 3、Env-App.xcconfig内容留空（因为脚本会读.env文件并写入此文件）
 步骤二：在PROJECT -> App -> Info -> Configurations -> Debug / Release -> 选择刚创建的App.debug / App.release
-![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/master/screenshoot/iOS_update_config_setting.png)
+![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_update_config_setting.png)
 步骤三：在Build Pre-action中添加脚本
 1、打开：xCode菜单 -> Product -> Scheme -> Edit Scheme... -> Build -> Pre-actions -> +
 2、在『Provide build settings from』选项里选择自己的App
-![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/master/screenshoot/iiOS_add_script_in_scheme.png)
+![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iiOS_add_script_in_scheme.png)
 3、加入如下脚本：
 ```
 # Target Key Settings
@@ -138,7 +138,7 @@ envAppConfigPath="${SRCROOT}/Env/Env-App.xcconfig"
 targetExp="/^(${ID_KEY}|${SECRET_KEY}).*/!d"
 sed -E $targetExp $dotEnvFilePath > $envAppConfigPath
 ```
-![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/master/screenshoot/iOS_add_script_in_scheme.png)
+![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_add_script_in_scheme.png)
 步骤四：在Info.plist加入相应key和dict：
 ```
   <key>Aliyun Push Config</key>
@@ -151,7 +151,7 @@ sed -E $targetExp $dotEnvFilePath > $envAppConfigPath
     <string>$(EMAS_IOS_APP_SECRET)</string>
   </dict>
 ```
-![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/master/screenshoot/iOS_update_info_plist.png.png)
+![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_update_info_plist.png.png)
 步骤五：在代码中读取Info.plist获取相关Id和Key`（插件内部实现，无需手动设置）`
 ```
 // 使用Info.plist中的Aliyun Push Config
@@ -176,7 +176,7 @@ task setPropsFromDotEnv(type: Exec) {
 //  println(System.props)
 }
 ```
-![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/master/screenshoot/android_build_gradle_readenv_task.png)
+![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/android_build_gradle_readenv_task.png)
 步骤二：Module的build.gradle中加入android.defaultConfig.manifestPlaceholders，并设置对应的System.props：`（插件内部实现，无需手动设置）`
 ```
 android {
@@ -361,4 +361,4 @@ android {
 
 1. `iOS`无法获取到`Token`
    `Xcode`中确认开启以下两项
-   ![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/master/screenshoot/iOS_notification_config.png)
+   ![](https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_notification_config.png)

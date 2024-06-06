@@ -15,7 +15,6 @@
             </feature>
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <!-- <meta-data android:name="aliyun_enable_debug" android:value="${ALIYUN_PUSH_DEBUG}"/> -->
             <meta-data android:name="ALIYUN_PUSH_DEBUG" android:value="${ALIYUN_PUSH_DEBUG}"/>
             <meta-data android:name="CHANNEL_ID" android:value="${ALIYUN_PUSH_CHANNEL_ID}"/>
             <meta-data android:name="com.alibaba.app.appkey" android:value="${EMAS_ANDROID_APP_KEY}" />
@@ -43,20 +42,19 @@
                 </intent-filter>
             </receiver>
         </config-file>
-        <!-- Maybe need add manually -->
-        <config-file parent="/*" target="res/values/strings.xml">
-            <string name="aliyun_dialog_title">消息提醒需要通知权限</string>
-            <string name="aliyun_dialog_message">请前往设置打开应用通知权限。</string>
-            <string name="aliyun_dialog_negative_text">忽略</string>
-            <string name="aliyun_dialog_positive_text">设置</string>
-        </config-file>
         <source-file src="src/android/PushUtils.java" target-dir="src/com/alipush" />
         <source-file src="src/android/AliyunPush.java" target-dir="src/com/alipush" />
-        <!-- <source-file src="src/android/PushApplication.java" target-dir="src/com/alipush" /> -->
         <source-file src="src/android/PushMessageReceiver.java" target-dir="src/com/alipush" />
         <source-file src="src/android/PopupPushActivity.java" target-dir="src/com/alipush" />
         <!-- V3.9.0 framework -->
         <framework src="build-extras.gradle" custom="true" type="gradleReference" />
+        <!-- Need add manually -->
+        <!-- <config-file parent="/*" target="res/values/strings.xml">
+            <string name="aliyun_dialog_title">消息提醒需要通知权限</string>
+            <string name="aliyun_dialog_message">请前往设置打开应用通知权限。</string>
+            <string name="aliyun_dialog_negative_text">忽略</string>
+            <string name="aliyun_dialog_positive_text">设置</string>
+        </config-file> -->
     </platform>
     <!-- ios -->
     <platform name="ios">
@@ -76,17 +74,6 @@
         <config-file parent="aps-environment" target="*-Release.plist">
             <string>production</string>
         </config-file>
-        <!-- Maybe need add manually -->
-        <config-file parent="Aliyun Push Config" target="*-Info.plist">
-            <dict>
-                <key>Debug</key>
-                <false/>
-                <key>App Key</key>
-                <string>$(EMAS_IOS_APP_KEY)</string>
-                <key>App Secret</key>
-                <string>$(EMAS_IOS_APP_SECRET)</string>
-            </dict>
-        </config-file>
         <header-file src="src/ios/Plugins/AliyunPushPlugin.h" />
         <source-file src="src/ios/Plugins/AliyunPushPlugin.m" />
         <header-file src="src/ios/Plugins/AliyunNotificationLauncher.h" />
@@ -103,5 +90,16 @@
         <framework src="src/ios/Aliyun.frameworks/AlicloudUtils.xcframework" custom="true" />
         <framework src="src/ios/Aliyun.frameworks/CloudPushSDK.xcframework" custom="true" />
         <framework src="src/ios/Aliyun.frameworks/UTDID.xcframework" custom="true" />
+        <!-- Need add manually -->
+        <!-- <config-file parent="Aliyun Push Config" target="*-Info.plist">
+            <dict>
+                <key>Debug</key>
+                <false/>
+                <key>App Key</key>
+                <string>$(EMAS_IOS_APP_KEY)</string>
+                <key>App Secret</key>
+                <string>$(EMAS_IOS_APP_SECRET)</string>
+            </dict>
+        </config-file> -->
     </platform>
 </plugin>
