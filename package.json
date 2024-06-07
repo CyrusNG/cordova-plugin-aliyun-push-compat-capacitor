@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-aliyun-push-compat-capacitor",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "author": "Cyrus NG",
   "description": "A aliyun push cordova plugin for CapacitorJS.",
   "license": "MIT",

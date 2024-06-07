@@ -136,9 +136,9 @@
 }
 
 /**
- * 初始化阿里云推送服务
+ * 启动阿里云推送服务
  */
-- (void)init:(CDVInvokedUrlCommand*)command{
+- (void)boot:(CDVInvokedUrlCommand*)command{
 
     [AliyunPushDelegate boot];
 
