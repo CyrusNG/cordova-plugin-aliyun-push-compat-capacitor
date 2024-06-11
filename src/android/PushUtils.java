@@ -97,14 +97,14 @@ public class PushUtils {
         // 注册NotificationChannel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 通知渠道的id
-            String channelId;
+            Integer channelId;
             ApplicationInfo appInfo;
             try {
                 appInfo = application.getPackageManager().getApplicationInfo(application.getPackageName(), PackageManager.GET_META_DATA);
-                channelId = appInfo.metaData.getString("CHANNEL_ID", "").trim();
+                channelId = appInfo.metaData.getInt("ALIYUN_PUSH_CHANNEL_ID", 1);
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
-                Log.d(TAG, "CHANNEL_ID NOT FOUND!");
+                Log.d(TAG, "ALIYUN_PUSH_CHANNEL_ID NOT FOUND!");
                 return;
             }
 
@@ -115,7 +115,7 @@ public class PushUtils {
             // 用户可以看到的通知渠道的描述
             String description = "通知描述";
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(channelId, name, importance);
+            NotificationChannel mChannel = new NotificationChannel(channelId.toString(), name, importance);
             // 配置通知渠道的属性
             mChannel.setDescription(description);
             // 设置通知出现时的闪灯（如果 android 设备支持的话）

@@ -36,7 +36,7 @@ npm install --save-dev cordova-plugin-aliyun-push-compat-capacitor
 
 步骤一：根目录下创建.env文件并添加Id和Key信息([参照.env章节](###-.env))
 
-步骤二：相应业务逻辑适当时候调用init()
+步骤二：相应业务逻辑适当时候调用AliyunPush.boot()
 
 ### iOS
 
@@ -284,13 +284,6 @@ android {
     String miPushAppKey  = appInfo.metaData.getString("MI_PUSH_APP_KEY", "").trim();
 ```
 
-## 注意
-
-- `Android`
-  - 杀死 App 点击通知无法打开 APP 的,后端推送时添加 `AndroidExtParameters {open_type:"application"}`
-  - 因为 android 应用商店的隐私协议需要在同意后才能获取 某些信息，所以添加了 initPush 初始化。
-  - 打包报错的需要修改 build.gradle 中 com.android.tools.build:gradle:3.3.3 版本号 3.3.0 是不行，我暂时使用的 3.3.3
-
 ## JS API
 
 ```
@@ -414,11 +407,28 @@ android {
 
 ## 常见问题
 
-1. `Android 8.0`以上无法获取到`Token`
+- `Android`
 
-   检查是否配置了`network_security_config.xml`信息，具体百度了解
+  - 查看日志显示通知已经从服务器发送到客户端但没有在通知栏显示
+  
+    Android 8.0以上需要设置NotificationChannel，详情：https://help.aliyun.com/document_detail/67398.html
 
-1. `iOS`无法获取到`Token`
+  - 杀死App点击通知无法打开APP
+  
+    后端推送时添加 `AndroidExtParameters {open_type:"application"}`
+  
+  - com.android.tools.build:gradle:3.3.0打包报错
+    
+    使用3.3.3版
+
+  - `Android 8.0`以上无法获取到`Token`
+
+    检查是否配置了`network_security_config.xml`信息，具体百度了解
+
+
+- `iOS`
+
+ - `iOS`无法获取到`Token`
    
    `Xcode`中确认开启以下两项
 

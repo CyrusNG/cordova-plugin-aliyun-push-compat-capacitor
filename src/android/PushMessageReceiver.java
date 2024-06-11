@@ -31,14 +31,12 @@ public class PushMessageReceiver extends MessageReceiver {
     @Override
     public void onNotification(Context context, String title, String summary, Map<String, String> extraMap) {
         Log.i(LOG_TAG, "收到通知 Receive notification, title: " + title + ", summary: " + summary + ", extraMap: " + extraMap);
-
         sendPushData(ONNOTIFICATION, title, summary, extraMap);
     }
 
     @Override
     public void onMessage(Context context, CPushMessage cPushMessage) {
         Log.i(LOG_TAG, "收到消息 onMessage, messageId: " + cPushMessage.getMessageId() + ", title: " + cPushMessage.getTitle() + ", content:" + cPushMessage.getContent());
-
         sendPushData(ONMESSAGE, cPushMessage.getTitle(), cPushMessage.getContent(), null, null, cPushMessage.getMessageId());
 
     }

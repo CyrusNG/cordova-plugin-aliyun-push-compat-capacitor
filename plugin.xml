@@ -16,7 +16,7 @@
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data android:name="ALIYUN_PUSH_DEBUG" android:value="${ALIYUN_PUSH_DEBUG}"/>
-            <meta-data android:name="CHANNEL_ID" android:value="${ALIYUN_PUSH_CHANNEL_ID}"/>
+            <meta-data android:name="ALIYUN_PUSH_CHANNEL_ID" android:value="${ALIYUN_PUSH_CHANNEL_ID}"/>
             <meta-data android:name="com.alibaba.app.appkey" android:value="${EMAS_ANDROID_APP_KEY}" />
             <meta-data android:name="com.alibaba.app.appsecret" android:value="${EMAS_ANDROID_APP_SECRET}" />
             <meta-data android:name="MI_PUSH_APP_ID" android:value="${EMAS_MI_APP_ID}"/>
