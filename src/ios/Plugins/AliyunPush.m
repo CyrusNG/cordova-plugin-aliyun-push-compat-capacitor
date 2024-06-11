@@ -4,7 +4,7 @@
 #import "AliyunNotificationLauncher.h"
 #import "AliyunPushDelegate.h"
 
-@interface AliyunPushPlugin : CDVPlugin {
+@interface AliyunPush : CDVPlugin {
     NSDictionary *_deathNotify;
 }
 
@@ -12,7 +12,7 @@
 @property (nonatomic,strong) NSString *alertmsg;
 @end
 
-@implementation AliyunPushPlugin
+@implementation AliyunPush
 
 - (void)pluginInitialize{
 

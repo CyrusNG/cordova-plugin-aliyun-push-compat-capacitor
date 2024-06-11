@@ -6,7 +6,7 @@
 //
 #import <Cordova/CDV.h>
 
-@interface AliyunPushPlugin : CDVPlugin
+@interface AliyunPush : CDVPlugin
 
 /**
  * 接收阿里云的消息

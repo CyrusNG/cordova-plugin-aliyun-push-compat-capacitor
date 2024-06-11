@@ -74,8 +74,8 @@
         <config-file parent="aps-environment" target="*-Release.plist">
             <string>production</string>
         </config-file>
-        <header-file src="src/ios/Plugins/AliyunPushPlugin.h" />
-        <source-file src="src/ios/Plugins/AliyunPushPlugin.m" />
+        <header-file src="src/ios/Plugins/AliyunPush.h" />
+        <source-file src="src/ios/Plugins/AliyunPush.m" />
         <header-file src="src/ios/Plugins/AliyunNotificationLauncher.h" />
         <source-file src="src/ios/Plugins/AliyunNotificationLauncher.m" />
         <header-file src="src/ios/Plugins/AliyunPushDelegate.h" />

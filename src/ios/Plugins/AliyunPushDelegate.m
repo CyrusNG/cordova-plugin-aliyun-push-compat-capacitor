@@ -21,11 +21,15 @@ static AliyunPushDelegate* _instance = nil;
     return _instance;
 }
 
-+(void)boot {
++(void)load {
     AliyunPushDelegate* _self = [AliyunPushDelegate getInstance];
     [[NSNotificationCenter defaultCenter] addObserver:_self
                                              selector:@selector(applicationDidFinishLaunching:)
                                                  name:UIApplicationDidFinishLaunchingNotification object:nil];
+}
+
++(void)boot {
+    AliyunPushDelegate* _self = [AliyunPushDelegate getInstance];
     [[NSNotificationCenter defaultCenter] addObserver:_self
                                              selector:@selector(applicationDidRegisterForRemoteNotifications:)
                                                  name:@"CDApplicationDidRegisterForRemoteNotificationsNotification" object:nil];
