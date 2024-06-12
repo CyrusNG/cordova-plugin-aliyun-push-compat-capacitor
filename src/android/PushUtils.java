@@ -93,10 +93,10 @@ public class PushUtils {
         // GcmRegister.register(this, sendId, applicationId);
     }
 
-    private static void createDefaultChannel(Application application) {
+       private static void createDefaultChannel(Application application) {
         // 注册NotificationChannel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // 通知渠道的id
+            //通知渠道的id
             Integer channelId;
             ApplicationInfo appInfo;
             try {
@@ -107,31 +107,25 @@ public class PushUtils {
                 Log.d(TAG, "ALIYUN_PUSH_CHANNEL_ID NOT FOUND!");
                 return;
             }
-
+            //创建渠道
             NotificationManager mNotificationManager = (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
-
-            // 用户可以看到的通知渠道的名字.
-            CharSequence name = "通知";
-            // 用户可以看到的通知渠道的描述
-            String description = "通知描述";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(channelId.toString(), name, importance);
-            // 配置通知渠道的属性
-            mChannel.setDescription(description);
-            // 设置通知出现时的闪灯（如果 android 设备支持的话）
+            NotificationChannel mChannel = new NotificationChannel(channelId.toString(), "通知", NotificationManager.IMPORTANCE_HIGH);
+            //配置通知渠道的属性
+            mChannel.setDescription("通知描述");
+            //设置通知出现时的闪灯（如果 android 设备支持的话）
             mChannel.enableLights(true);
             mChannel.setLightColor(Color.RED);
-            // 设置通知出现时的震动（如果 android 设备支持的话）
+            //设置通知出现时的震动（如果 android 设备支持的话）
             mChannel.enableVibration(true);
             mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-            // 最后在 notificationManager 中创建该通知渠道
+            //创建该通知渠道
             mNotificationManager.createNotificationChannel(mChannel);
-            // 设置8.0系统的通知小图标,必须要纯色的图
+            //设置8.0系统的分组和通知小图标，必须要纯色的图
             String notiIcon = appInfo.metaData.getString("NOTIFICATION_ICON", "ic_notification_icon").trim();
             int imageRes = application.getResources().getIdentifier("@drawable/" + notiIcon, null, application.getPackageName());
             PushServiceFactory.getCloudPushService().setNotificationSmallIcon(imageRes);
+            PushServiceFactory.getCloudPushService().setNotificationShowInGroup(true);
         }
-
     }
 
     void setNoticeJsonData(String jsonObject) {
