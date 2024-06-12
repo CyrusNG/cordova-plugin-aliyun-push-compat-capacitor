@@ -15,8 +15,9 @@
             </feature>
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <!-- Debug Config -->
             <meta-data android:name="ALIYUN_PUSH_DEBUG" android:value="${ALIYUN_PUSH_DEBUG}"/>
-            <meta-data android:name="ALIYUN_PUSH_CHANNEL_ID" android:value="${ALIYUN_PUSH_CHANNEL_ID}"/>
+            <!-- Aliyun Push Config -->
             <meta-data android:name="com.alibaba.app.appkey" android:value="${EMAS_ANDROID_APP_KEY}" />
             <meta-data android:name="com.alibaba.app.appsecret" android:value="${EMAS_ANDROID_APP_SECRET}" />
             <meta-data android:name="MI_PUSH_APP_ID" android:value="${EMAS_MI_APP_ID}"/>
@@ -29,7 +30,12 @@
             <meta-data android:name="OPPO_PUSH_APP_SECRET" android:value="${EMAS_OPPO_APP_SECRET}"/>
             <meta-data android:name="MZ_PUSH_APP_ID" android:value="${EMAS_MEIZU_APP_ID}"/>
             <meta-data android:name="MZ_PUSH_APP_KEY" android:value="${EMAS_MEIZU_APP_KEY}"/>
+            <!-- Android 8+ Config -->
+            <meta-data android:name="ALIYUN_PUSH_CHANNEL_ID" android:value="${ALIYUN_PUSH_CHANNEL_ID}"/>
+            <meta-data android:name="NOTIFICATION_ICON" android:value="ic_notification_icon"/>
+            <!-- Third-party Assist Factory Activity Config -->
             <activity android:name="com.alipush.PopupPushActivity" android:exported="true" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            <!-- Receiver Config -->
             <receiver android:exported="false" android:name="com.alipush.PushMessageReceiver">
                 <intent-filter>
                     <action android:name="com.alibaba.push2.action.NOTIFICATION_OPENED" />

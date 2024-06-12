@@ -77,7 +77,11 @@ npx cap sync
 <string name="aliyun_dialog_positive_text">设置</string>
 ```
 
-步骤三：同步插件到app:
+步骤三：res/drawable/中添加通知小图标名字为：ic_notification_icon.png
+
+[<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/android_add_notification_small_icon.png" width="300"/>](android_add_notification_small_icon.png)
+
+步骤四：同步插件到app:
 
 ```
 npx cap sync
@@ -257,8 +261,7 @@ android {
 
 ```
 <application>
-    <meta-data android:name="ALIYUN_PUSH_DEBUG" android:value="${ALIYUN_PUSH_DEBUG}"/>
-    <meta-data android:name="CHANNEL_ID" android:value="${ALIYUN_PUSH_CHANNEL_ID}"/>
+    ...
     <meta-data android:name="com.alibaba.app.appkey" android:value="${EMAS_ANDROID_APP_KEY}"/>
     <meta-data android:name="com.alibaba.app.appsecret" android:value="${EMAS_ANDROID_APP_SECRET}"/>
     <meta-data android:name="MI_PUSH_APP_ID" android:value="${EMAS_MI_APP_ID}"/>
@@ -428,10 +431,10 @@ android {
 
 - `iOS`
 
- - `iOS`无法获取到`Token`
+  - `iOS`无法获取到`Token`
    
-   `Xcode`中确认开启以下两项
+    `Xcode`中确认开启以下两项
 
-   [<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_notification_config.png"/>](iOS_notification_config.png)
+    [<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_notification_config.png"/>](iOS_notification_config.png)
 
    

@@ -127,7 +127,9 @@ public class PushUtils {
             // 最后在 notificationManager 中创建该通知渠道
             mNotificationManager.createNotificationChannel(mChannel);
             // 设置8.0系统的通知小图标,必须要纯色的图
-            // PushServiceFactory.getCloudPushService().setNotificationSmallIcon(R.drawable.notify);
+            String notiIcon = appInfo.metaData.getString("NOTIFICATION_ICON", "ic_notification_icon").trim();
+            int imageRes = application.getResources().getIdentifier("@drawable/" + notiIcon, null, application.getPackageName());
+            PushServiceFactory.getCloudPushService().setNotificationSmallIcon(imageRes);
         }
 
     }
