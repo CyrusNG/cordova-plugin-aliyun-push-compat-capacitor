@@ -76,39 +76,31 @@ public class PushMessageReceiver extends MessageReceiver {
         }
     }
 
-    /**
-     * 设定字符串类型JSON对象，如值为空时不设定
-     *
-     * @param jsonObject JSON对象
-     * @param name       关键字
-     * @param value      值
-     * @throws JSONException JSON异常
-     */
     private void setStringData(JSONObject jsonObject, String name, String value) throws JSONException {
         if (value != null && !"".equals(value)) {
             jsonObject.put(name, value);
         }
     }
 
+    private void setObjectData(JSONObject jsonObject, String name, JSONObject value) throws JSONException {
+      if (value != null && value.length() > 0) {
+        jsonObject.put(name, value);
+      }
+    }
+
     private void sendPushData(String type, String title, String content, Map<String, String> extraMap, String... openUrl) {
         try {
-            JSONObject data;
-            if (extraMap != null) {
-                data = new JSONObject(extraMap);
-            } else {
-                data = new JSONObject();
-            }
+            JSONObject data = new JSONObject();
+            setStringData(data, "type", type);
+            setStringData(data, "title", title);
+            setStringData(data, "body", content);
+            setObjectData(data, "params", new JSONObject(extraMap));
             if (openUrl.length != 0) {
-                if (openUrl[0] != null && !"".equals(openUrl[0])) {
-                    setStringData(data, "url", openUrl[0]);
-                }
-                if (openUrl.length > 1 && openUrl[1] != null && !"".equals(openUrl[1])) {
+                setStringData(data, "url", openUrl[0]);
+                if (openUrl.length > 1) {
                     setStringData(data, "id", openUrl[1]);
                 }
             }
-            setStringData(data, "type", type);
-            setStringData(data, "title", title);
-            setStringData(data, "content", content);
             AliyunPush.pushData(data);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -117,22 +109,15 @@ public class PushMessageReceiver extends MessageReceiver {
 
     private void sendPushData(String type, String title, String content, String extraMap) {
         Log.d(LOG_TAG, type);
-        if (AliyunPush.pushCallbackContext == null) {
-            return;
-        }
+        if (AliyunPush.pushCallbackContext == null) { return; }
         try {
+            JSONObject extra = new JSONObject();
             JSONObject data = new JSONObject();
-            if (extraMap != null && !"".equals(extraMap)) {
-                try {
-                    data = new JSONObject(extraMap);
-                } catch (JSONException e) {
-                    Log.e(LOG_TAG, e.getMessage(), e);
-                    setStringData(data, "extra", extraMap);
-                }
-            }
+            setStringData(extra, "extra", extraMap);
             setStringData(data, "type", type);
             setStringData(data, "title", title);
-            setStringData(data, "content", content);
+            setStringData(data, "body", content);
+            setObjectData(data, "params", extra);
             AliyunPush.pushData(data);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);

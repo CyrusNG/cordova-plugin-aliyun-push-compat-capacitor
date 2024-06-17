@@ -73,16 +73,16 @@
         return;
     }
 
-    NSMutableDictionary *extra = [[NSMutableDictionary alloc] initWithDictionary:info];
-    [extra removeObjectForKey:@"type"];
-    [extra removeObjectForKey:@"body"];
-    [extra removeObjectForKey:@"title"];
+    NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithDictionary:info];
+    [params removeObjectForKey:@"type"];
+    [params removeObjectForKey:@"body"];
+    [params removeObjectForKey:@"title"];
 
     NSMutableDictionary *message = [NSMutableDictionary dictionary];
-    [message setObject:extra forKey:@"extra"];
     [message setObject:info[@"type"] forKey:@"type"];
     [message setObject:info[@"title"] forKey:@"title"];
-    [message setObject:info[@"body"] forKey:@"content"];
+    [message setObject:info[@"body"] forKey:@"body"];
+    [message setObject:params forKey:@"params"];
     [message setObject:@"" forKey:@"url"];
 
     NSLog(@"x----数据来了");
@@ -106,17 +106,15 @@
 - (void)onMessageReceived:(NSNotification *)notification {
 
     NSDictionary * info = notification.object;
-    if(!info){
-        return;
-    }
+    if(!info) { return; }
     NSMutableDictionary *message = [NSMutableDictionary dictionary];
-    [message setObject:@"" forKey:@"extra"];
     [message setObject:info[@"type"] forKey:@"type"];
     [message setObject:info[@"title"] forKey:@"title"];
-    [message setObject:info[@"body"] forKey:@"content"];
+    [message setObject:info[@"body"] forKey:@"body"];
+    [message setObject:@"" forKey:@"params"];
     [message setObject:@"" forKey:@"url"];
 
-//     _deathNotify = message;
+    // _deathNotify = message;
 
     CDVPluginResult *result;
     result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];

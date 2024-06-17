@@ -1,170 +1,167 @@
 var exec = require('cordova/exec');
 
 var AliyunPush = {
-  registered: false,
-  errorCallback: function (msg) {
-    console.log('AliyunPush Callback Error: ' + msg);
+
+  /**
+   * 阿里云推送消息事件，需要重写函数
+   * @return {void}
+   */
+  onMessage: function (message) {
+    console.log('AliyunPush Message: ' + message);
   },
 
-  callNative: function (name, args, successCallback, errorCallback) {
-    if (errorCallback) {
-      cordova.exec(successCallback, errorCallback, 'AliyunPush', name, args);
-    } else {
-      cordova.exec(successCallback, this.errorCallback, 'AliyunPush', name, args);
-    }
+  /**
+   * 阿里云推送错误事件，需要重写函数
+   * @return {void}
+   */
+  onError: function (error) {
+    console.log('AliyunPush Error: ' + error);
   },
+
 
   /**
    * 启动推送
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
    * @return {void}
    */
-  boot: function (successCallback, errorCallback) {
-    this.callNative('boot', [], successCallback, errorCallback);
-  },
-
-  /**
-   * 阿里云推送消息透传回调
-   * @param  {Function} successCallback 成功回调
-   * @return {void}
-   */
-  onMessage: function (successCallback) {
-    this.callNative('onMessage', [], successCallback);
+  boot: async function () {
+    this._bindNative('onMessage', this.onMessage);
+    return await this._callNative('boot', []);
   },
 
   /**
    * 是否开启了通知的权限
-   * @param {*} successCallback
-   * @param {*} errorCallback
+   * @return {boolean}
    */
-  isEnableNotification: function (successCallback, errorCallback) {
-    this.callNative('isEnableNotification', [], successCallback, errorCallback);
+  isEnableNotification: async function () {
+   return await this._callNative('isEnableNotification', []);
   },
 
   /**
    * 没有权限时，请求开通通知权限，其他路过
-   * @param {} successCallback
-   * @param {*} errorCallback
+   * @return {void}
    */
-  requireNotifyPermission: function (successCallback, errorCallback) {
-    this.callNative('requireNotifyPermission', [], successCallback, errorCallback);
+  requireNotifyPermission: async function () {
+    return await this._callNative('requireNotifyPermission', []);
   },
 
   /**
    * 获取设备唯一标识deviceId，deviceId为阿里云移动推送过程中对设备的唯一标识（并不是设备UUID/UDID）
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
-   * @return {void}
+   * @return {string} 设备注册码
    */
-  getRegisterId: function (successCallback, errorCallback) {
-    this.callNative('getRegisterId', [], successCallback, errorCallback);
+  getRegisterId: async function () {
+   return await this._callNative('getRegisterId', []);
   },
 
   /**
    * 阿里云推送绑定账号名
-   * @param  {string} account         账号
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
+   * @param  {string} account 账号
    * @return {void}
    */
-  bindAccount: function (account, successCallback, errorCallback) {
-    this.callNative('bindAccount', [account], successCallback, errorCallback);
+  bindAccount: async function (account) {
+    return await this._callNative('bindAccount', [account]);
   },
 
   /**
    * 阿里云推送解除账号名,退出切换账号时调用
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
    * @return {void}
    */
-  unbindAccount: function (successCallback, errorCallback) {
-    this.callNative('unbindAccount', [], successCallback, errorCallback);
+  unbindAccount: async function () {
+    return await this._callNative('unbindAccount', []);
   },
 
   /**
    * 阿里云推送绑定标签
-   * @param  {string[]} tags            标签列表
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
+   * @param  {string} target 目标
+   * @param  {string[]} tags 标签列表
+   * @param  {string} alias 别名
    * @return {void}
    */
-  bindTags: function (target, tags, alias, successCallback, errorCallback) {
-    this.callNative('bindTags', [target, tags, alias], successCallback, errorCallback);
+  bindTags: async function (target, tags, alias) {
+    return await this._callNative('bindTags', [target, tags, alias]);
   },
 
   /**
    * 阿里云推送解除绑定标签
-   * @param  {string[]} tags            标签列表
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
+   * @param  {string} target 目标
+   * @param  {string[]} tags 标签列表
+   * @param  {string} alias 别名
    * @return {void}
    */
-  unbindTags: function (target, tags, alias, successCallback, errorCallback) {
-    this.callNative('unbindTags', [target, tags, alias], successCallback, errorCallback);
+  unbindTags: async function (target, tags, alias) {
+    return await this._callNative('unbindTags', [target, tags, alias]); 
   },
 
   /**
-   * 阿里云推送解除绑定标签
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
+   * 阿里云推送列出标签
    * @return {void}
    */
-  listTags: function (successCallback, errorCallback) {
-    this.callNative('listTags', [], successCallback, errorCallback);
+  listTags: async function () {
+    return await this._callNative('listTags', []);
   },
 
   /**
    * 添加别名
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
+   * @param  {string} alias 别名
    * @return {void}
    */
-  addAlias: function (alias, successCallback, errorCallback) {
-    this.callNative('addAlias', [alias], successCallback, errorCallback);
+  addAlias: async function (alias) {
+    return await this._callNative('addAlias', [alias]);
   },
 
   /**
    * 解绑别名
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
+   * @param  {string} alias 别名
    * @return {void}
    */
-  removeAlias: function (alias, successCallback, errorCallback) {
-    this.callNative('removeAlias', [alias], successCallback, errorCallback);
+  removeAlias: async function (alias) {
+    return await this._callNative('removeAlias', [alias]);
   },
 
   /**
    * 获取别名列表
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
    * @return {void}
    */
-  listAliases: function (successCallback, errorCallback) {
-    this.callNative('listAliases', [], successCallback, errorCallback);
+  listAliases: async function () {
+    return await this._callNative('listAliases', []);
   },
 
   /**
    * 设置数量
-   * @param  {string[]} badgeNum        角标数量
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
+   * @param  {string} badgeNum 角标数量
    * @return {void}
    */
-  syncBadgeNum: function (badgeNum, successCallback, errorCallback) {
-    this.callNative('syncBadgeNum', [badgeNum], successCallback, errorCallback);
-  },
-  /**
-   * 设置数量
-   * @param  {string[]} badgeNum        角标数量
-   * @param  {Function} successCallback 成功回调
-   * @param  {Function} errorCallback   失败回调
-   * @return {void}
-   */
-  setApplicationIconBadgeNumber: function (badgeNum, successCallback, errorCallback) {
-    this.callNative('setApplicationIconBadgeNumber', [badgeNum], successCallback, errorCallback);
+  syncBadgeNum: async function (badgeNum) {
+    return await this._callNative('syncBadgeNum', [badgeNum]);
   },
 
-  AliyunPush: AliyunPush,
+  /**
+   * 设置数量
+   * @param  {string} badgeNum 角标数量
+   * @return {void}
+   */
+  setApplicationIconBadgeNumber: async function (badgeNum) {
+    return await this._callNative('setApplicationIconBadgeNumber', [badgeNum]);
+  },
+
+  /**
+   * 桥接native函数
+   * @param  {string} name native中的函数名
+   * @param  {*[]} args native中的函数参数
+   * @return {object|undefined} 成功：返回的数据 | 错误：调用onError()并返回undefined
+   */
+  _callNative: async function (name, args) {
+    return await new Promise((resolve) => exec(data => resolve(data), err => resolve(this.onError(err)), 'AliyunPush', name, args));
+  },
+
+    /**
+   * 桥接native事件
+   * @param  {string} name native中的函数名
+   * @param  {function} handler 处理事件的函数 
+   * @return {void}
+   */
+  _bindNative: function (name, handler) {
+    exec(handler, this.onError, 'AliyunPush', name, []);
+  },
+
 };
 module.exports = AliyunPush;

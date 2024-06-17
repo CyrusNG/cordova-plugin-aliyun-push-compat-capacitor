@@ -36,7 +36,12 @@ npm install --save-dev cordova-plugin-aliyun-push-compat-capacitor
 
 步骤一：根目录下创建.env文件并添加Id和Key信息([参照.env章节](###-.env))
 
-步骤二：相应业务逻辑适当时候调用AliyunPush.boot()
+步骤二：相应业务逻辑适当时候调用AliyunPush API:
+```
+  Aliyun.onMessage = message => this.messageHandler(message);
+  Aliyun.onError = err => this.errorHandler(err);
+  await AliyunPush.boot();
+```
 
 ### iOS
 
@@ -80,6 +85,8 @@ npx cap sync
 步骤三：res/drawable/中添加通知小图标名字为：ic_notification_icon.png
 
 [<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/android_add_notification_small_icon.png" width="300"/>](android_add_notification_small_icon.png)
+
+简单生成通知小图标线上工具：https://romannurik.github.io/AndroidAssetStudio/icons-notification.html
 
 步骤四：同步插件到app:
 
@@ -289,123 +296,126 @@ android {
 
 ## JS API
 
+### 初始化API：
 ```
-   /**
-     * 启动阿里云推送服务
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    boot: function(successCallback, errorCallback)
-    
-    /**
-     * 获取设备唯一标识deviceId，deviceId为阿里云移动推送过程中对设备的唯一标识（并不是设备UUID/UDID）
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    getRegisterId: function(successCallback, errorCallback)
+  Aliyun.onMessage = message => this.messageHandler(message);
+  Aliyun.onError = err => this.errorHandler(err);
+  await AliyunPush.boot();
+```
 
-    /**
-     * 阿里云推送绑定账号名
-     * @param  {string} account         账号
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    bindAccount: function(account, successCallback, errorCallback)
+返回消息Message结构：
+{
+  type:string 消息类型,
+  title:string '阿里云推送',
+  body:string '推送的内容',
+  params:string | Object<k,v> 外健,
+  url:路由（后台发送推送时，在ExtParameters参数里写入url如{url:'demoapp://...'}）
+  id: url中的id
+}
 
-    /**
-     * 阿里云推送解除账号名,退出或切换账号时调用
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    unbindAccount: function(successCallback, errorCallback)
+消息Type类型：
+{
+  message:透传消息，
+  notification:通知接收，
+  notificationOpened:通知点击，
+  notificationReceived：通知到达，
+  notificationRemoved：通知移除，
+  notificationClickedWithNoAction：通知到达，
+  notificationReceivedInApp：通知到达打开 app
+}
 
-    /**
-     * 阿里云推送绑定标签
-     * @param  {string[]} tags            标签列表
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    bindTags: function(tags, successCallback, errorCallback)
+### 其他API
+```
+  /**
+   * 是否开启了通知的权限
+   * @return {boolean}
+   */
+  isEnableNotification: async function () -> boolean
 
-    /**
-     * 阿里云推送解除绑定标签
-     * @param  {string[]} tags            标签列表
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    unbindTags: function(tags, successCallback, errorCallback)
+  /**
+   * 没有权限时，请求开通通知权限，其他路过
+   * @return {void}
+   */
+  requireNotifyPermission: async function () -> void
 
-    /**
-     * 阿里云推送解除绑定标签
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    listTags: function(successCallback, errorCallback)
+  /**
+   * 获取设备唯一标识deviceId，deviceId为阿里云移动推送过程中对设备的唯一标识（并不是设备UUID/UDID）
+   * @return {string} 设备注册码
+   */
+  getRegisterId: async function () -> string
 
-    /**
-     * 添加别名
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    addAlias: function (alias, successCallback, errorCallback)
+  /**
+   * 阿里云推送绑定账号名
+   * @param  {string} account 账号
+   * @return {void}
+   */
+  bindAccount: async function (account) -> void
 
-    /**
-     * 解绑别名
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    removeAlias: function (alias, successCallback, errorCallback)
+  /**
+   * 阿里云推送解除账号名,退出切换账号时调用
+   * @return {void}
+   */
+  unbindAccount: async function () -> void
 
-    /**
-     * 获取别名列表
-     * @param  {Function} successCallback 成功回调
-     * @param  {Function} errorCallback   失败回调
-     * @return {void}
-     */
-    listAliases: function (successCallback, errorCallback)
+  /**
+   * 阿里云推送绑定标签
+   * @param  {string} target 目标
+   * @param  {string[]} tags 标签列表
+   * @param  {string} alias 别名
+   * @return {void}
+   */
+  bindTags: async function (target, tags, alias) -> void
 
-    /**
-      * 没有权限时，请求开通通知权限，其他路过
-      * @param  string msg  请求权限的描述信息
-      * @param {} successCallback
-      * @param {*} errorCallback
-      */
-    requireNotifyPermission:function(msg,successCallback, errorCallback)
+  /**
+   * 阿里云推送解除绑定标签
+   * @param  {string} target 目标
+   * @param  {string[]} tags 标签列表
+   * @param  {string} alias 别名
+   * @return {void}
+   */
+  unbindTags: async function (target, tags, alias) -> void
 
-    /**
-    * 阿里云推送消息透传回调
-    * @param  {Function} successCallback 成功回调
-    */
-    onMessage:function(sucessCallback) ;
+  /**
+   * 阿里云推送列出标签
+   * @return {void}
+   */
+  listTags: async function () -> void
 
-    # sucessCallback:调用成功回调方法，注意没有失败的回调，返回值结构如下：
-    #json: {
-      type:string 消息类型,
-      title:string '阿里云推送',
-      content:string '推送的内容',
-      extra:string | Object<k,v> 外健,
-      url:路由（后台发送推送时，在ExtParameters参数里写入url如{url:'demoapp://...'}）
-    }
+  /**
+   * 添加别名
+   * @param  {string} alias 别名
+   * @return {void}
+   */
+  addAlias: async function (alias) -> void
 
-    #消息类型
-    {
-      message:透传消息，
-      notification:通知接收，
-      notificationOpened:通知点击，
-      notificationReceived：通知到达，
-      notificationRemoved：通知移除，
-      notificationClickedWithNoAction：通知到达，
-      notificationReceivedInApp：通知到达打开 app
-    }
+  /**
+   * 解绑别名
+   * @param  {string} alias 别名
+   * @return {void}
+   */
+  removeAlias: async function (alias) -> void
+
+  /**
+   * 获取别名列表
+   * @return {void}
+   */
+  listAliases: async function () -> void
+
+  /**
+   * 设置数量
+   * @param  {string} badgeNum 角标数量
+   * @return {void}
+   */
+  syncBadgeNum: async function (badgeNum) -> void
+
+  /**
+   * 设置数量
+   * @param  {string} badgeNum 角标数量
+   * @return {void}
+   */
+  setApplicationIconBadgeNumber: async function (badgeNum) -> void
+
+  
 ```
 
 ## 常见问题
