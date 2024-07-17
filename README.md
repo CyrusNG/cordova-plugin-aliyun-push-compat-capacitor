@@ -296,7 +296,7 @@ android {
 
 ## JS API
 
-### 初始化API：
+### 初始化API
 ```
   Aliyun.onMessage = message => this.messageHandler(message);
   Aliyun.onError = err => this.errorHandler(err);
@@ -304,24 +304,41 @@ android {
 ```
 
 返回消息Message结构：
+
 {
+
   type:string 消息类型,
+
   title:string '阿里云推送',
+
   body:string '推送的内容',
+
   params:string | Object<k,v> 外健,
+
   url:路由（后台发送推送时，在ExtParameters参数里写入url如{url:'demoapp://...'}）
+
   id: url中的id
+
 }
 
 消息Type类型：
+
 {
+
   message:透传消息，
+
   notification:通知接收，
+
   notificationOpened:通知点击，
+
   notificationReceived：通知到达，
+
   notificationRemoved：通知移除，
+
   notificationClickedWithNoAction：通知到达，
+
   notificationReceivedInApp：通知到达打开 app
+
 }
 
 ### 其他API

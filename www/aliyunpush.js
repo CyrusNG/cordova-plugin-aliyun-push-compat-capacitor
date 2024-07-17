@@ -110,7 +110,7 @@ var AliyunPush = {
 
   /**
    * 解绑别名
-   * @param  {string} alias 别名
+   * @param  {string|null} alias 别名, null解绑所有别名
    * @return {void}
    */
   removeAlias: async function (alias) {
@@ -147,10 +147,10 @@ var AliyunPush = {
    * 桥接native函数
    * @param  {string} name native中的函数名
    * @param  {*[]} args native中的函数参数
-   * @return {object|undefined} 成功：返回的数据 | 错误：调用onError()并返回undefined
+   * @return {string|object} 成功：返回空字符 "" | 错误：抛出错误 { reason, message }
    */
-  _callNative: async function (name, args) {
-    return await new Promise((resolve) => exec(data => resolve(data), err => resolve(this.onError(err)), 'AliyunPush', name, args));
+  _callNative: function (name, args) {
+    return new Promise((resolve, reject) => exec(data => resolve(data), err => reject(err), 'AliyunPush', name, args));
   },
 
     /**
