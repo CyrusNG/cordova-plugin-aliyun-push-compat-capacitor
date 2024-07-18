@@ -353,23 +353,23 @@
 }
 
 - (void)removeAlias:(CDVInvokedUrlCommand*)command{
+    NSString* aliases = [command.arguments objectAtIndex:0];
+    
+    // bugfix: cordova throw [NSNull length] error when aliases is null 
+    if(aliases == (NSString *)[NSNull null]) { aliases = @""; }
+    
+    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher]
+        removeAlias:aliases andCallback:^(BOOL result) {
+        CDVPluginResult *cdvresult;
 
-    NSString *aliases = [command.arguments objectAtIndex:0];
+        if(result){
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        }else{
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        }
 
-    if (aliases.length!=0) {
-        [[AliyunNotificationLauncher sharedAliyunNotificationLauncher]
-         removeAlias:aliases andCallback:^(BOOL result) {
-            CDVPluginResult *cdvresult;
-
-            if(result){
-                cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-            }else{
-                cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-            }
-
-            [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
-        }];
-    }
+        [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
+    }];
 }
 
 - (void)listAliases:(CDVInvokedUrlCommand*)command{
