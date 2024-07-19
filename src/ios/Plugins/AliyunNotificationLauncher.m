@@ -443,6 +443,7 @@
         } else {
             NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)badgeNum, res.error);
         }
+        callback(res.success);
     }];
 }
 

@@ -390,8 +390,7 @@
     }];
 }
 
-- (void)syncBadgeNum:(CDVInvokedUrlCommand*)command{
-    
+- (void)syncBadgeNum:(CDVInvokedUrlCommand*)command {
     NSString* stringNum = [command.arguments objectAtIndex:0];
     NSUInteger badgeNum = [stringNum integerValue];
     
@@ -410,15 +409,17 @@
     
 }
 
-- (void)setApplicationIconBadgeNumber:(CDVInvokedUrlCommand*)command{
+- (void)setBadgeNum:(CDVInvokedUrlCommand*)command{
     
     NSString* stringNum = [command.arguments objectAtIndex:0];
     NSUInteger badgeNum = [stringNum integerValue];
 
-    UIApplication *app=[UIApplication sharedApplication];
-    app.applicationIconBadgeNumber=badgeNum;
+    UIApplication *app = [UIApplication sharedApplication];
+    app.applicationIconBadgeNumber = badgeNum;
+
+    CDVPluginResult *cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+    [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
 }
-
-
 
 @end

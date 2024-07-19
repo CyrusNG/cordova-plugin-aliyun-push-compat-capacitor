@@ -126,7 +126,7 @@ var AliyunPush = {
   },
 
   /**
-   * 设置数量
+   * 设置服务端角标数量 - iOS ONLY
    * @param  {string} badgeNum 角标数量
    * @return {void}
    */
@@ -135,12 +135,12 @@ var AliyunPush = {
   },
 
   /**
-   * 设置数量
+   * 设置本地角标数量 - iOS ONLY
    * @param  {string} badgeNum 角标数量
    * @return {void}
    */
-  setApplicationIconBadgeNumber: async function (badgeNum) {
-    return await this._callNative('setApplicationIconBadgeNumber', [badgeNum]);
+  setBadgeNum: async function (badgeNum) {
+    return await this._callNative('setBadgeNum', [badgeNum]);
   },
 
   /**
