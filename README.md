@@ -463,4 +463,6 @@ android {
 
     [<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/iOS_notification_config.png"/>](iOS_notification_config.png)
 
+  - 角标数字不正确
    
+    当前iOS角标做法是打开APP或点击通知就清零并同步到阿里云服务器，请在通知添加 { iOSBadgeAutoIncrement: true }

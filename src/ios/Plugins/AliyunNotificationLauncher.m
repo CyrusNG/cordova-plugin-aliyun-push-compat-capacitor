@@ -30,13 +30,20 @@
 
 #pragma mark  初始化推送设置sdk 获取token 注册消息
 - (void)didFinishLaunchingWithOptions:(NSDictionary *)launchOptions andApplication:(UIApplication *)application{
-
+    // 获取remoteNotification
     NSDictionary *remoteNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+    
     // 如果​remoteNotification不为空，代表有推送发过来，以下类似
-    if (remoteNotification) {
-        [UIApplication sharedApplication].applicationIconBadgeNumber = 0;//infoDict是在AppDelegate的.h文件中申明的一个不可变字典
-        _remoteinfo = remoteNotification;
-    }
+    if (remoteNotification) { _remoteinfo = remoteNotification; }
+    
+    // 重设通知栏
+    [CloudPushSDK syncBadgeNum:0 withCallback:^(CloudPushCallbackResult *res) {
+        if (res.success) {
+            application.applicationIconBadgeNumber = 0;
+        } else {
+            NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)0, res.error);
+        }
+    }];
 
     // 初始化SDK
     [self initCloudPush:application];
@@ -255,14 +262,19 @@
     NSString *sound = [aps valueForKey:@"sound"];
     // 取得通知自定义字段内容，例：获取key为"Extras"的内容
     NSString *Extras = [userInfo valueForKey:@"Extras"]; //服务端中Extras字段，key是自己定义的
-    NSLog(@"content = [%@], badge = [%ld], sound = [%@], Extras = [%@]", content, (long)badge, sound, Extras);
-    // iOS badge 清0
-    application.applicationIconBadgeNumber = 0;
-    // 同步通知角标数到服务端
-    // [self syncBadgeNum:0];
+    // 处理通知角标
+    NSInteger targetNum = content? badge : 0;
+    [CloudPushSDK syncBadgeNum:targetNum withCallback:^(CloudPushCallbackResult *res) {
+        if (res.success) {
+            [UIApplication sharedApplication].applicationIconBadgeNumber = targetNum;
+        } else {
+            NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)targetNum, res.error);
+        }
+    }];
     // 通知打开回执上报
     // [CloudPushSDK handleReceiveRemoteNotification:userInfo];(Deprecated from v1.8.1)
     [CloudPushSDK sendNotificationAck:userInfo];
+    NSLog(@"content = [%@], badge = [%ld], sound = [%@], Extras = [%@]", content, (long)badge, sound, Extras);
 }
 
 
@@ -272,7 +284,7 @@
  *  触发通知动作时回调，比如点击(iOS 10+)
  */
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler {
-    NSLog(@"userNotificationCenter");
+    NSLog(@"userNotificationCenter -> didReceiveNotificationResponse");
     NSString *userAction = response.actionIdentifier;
     // 点击通知打开
     if ([userAction isEqualToString:UNNotificationDefaultActionIdentifier]) {
@@ -304,7 +316,7 @@
  */
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    NSLog(@"userNotificationCenter2");
+    NSLog(@"userNotificationCenter -> willPresentNotification");
     // 处理iOS 10通知，并上报通知打开回执
     [self handleiOS10Notification:notification withType:@"notificationReceived"];
 
@@ -336,10 +348,15 @@
     int badge = [content.badge intValue];
     // 取得通知自定义字段内容，例：获取key为"Extras"的内容
     NSString *extras = [userInfo valueForKey:@"Extras"];
-    // 通知角标数清0
-    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
-    // 同步角标数到服务端
-    // [self syncBadgeNum:0];
+    // 处理通知角标
+    int targetNum = [type isEqual: @"notificationReceived"]? badge : 0;
+    [CloudPushSDK syncBadgeNum:targetNum withCallback:^(CloudPushCallbackResult *res) {
+        if (res.success) {
+            [UIApplication sharedApplication].applicationIconBadgeNumber = targetNum;
+        } else {
+            NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)targetNum, res.error);
+        }
+    }];
     // 通知打开回执上报
     [CloudPushSDK sendNotificationAck:userInfo];
     NSLog(@"Notification, date: %@, title: %@, subtitle: %@, body: %@, badge: %d, extras: %@.", noticeDate, title, subtitle, body, badge, extras);

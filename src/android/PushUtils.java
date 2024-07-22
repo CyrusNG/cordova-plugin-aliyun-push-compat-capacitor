@@ -117,7 +117,7 @@ public class PushUtils {
             mChannel.setLightColor(Color.RED);
             //设置通知出现时的震动（如果 android 设备支持的话）
             mChannel.enableVibration(true);
-            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            mChannel.setVibrationPattern(new long[]{ 500, 200, 200 });
             //创建该通知渠道
             mNotificationManager.createNotificationChannel(mChannel);
             //设置8.0系统的分组和通知小图标，必须要纯色的图
