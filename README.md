@@ -465,4 +465,4 @@ android {
 
   - 角标数字不正确
    
-    当前iOS角标做法是打开APP或点击通知就清零并同步到阿里云服务器，请在通知添加 { iOSBadgeAutoIncrement: true }
+    当前iOS角标做法是打开APP或点击通知就读取通知个数并同步到阿里云服务器，请在通知添加 { iOSBadgeAutoIncrement: true }

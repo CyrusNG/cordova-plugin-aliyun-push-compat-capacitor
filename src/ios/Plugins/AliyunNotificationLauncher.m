@@ -36,13 +36,17 @@
     // 如果​remoteNotification不为空，代表有推送发过来，以下类似
     if (remoteNotification) { _remoteinfo = remoteNotification; }
     
-    // 重设通知栏
-    [CloudPushSDK syncBadgeNum:0 withCallback:^(CloudPushCallbackResult *res) {
-        if (res.success) {
-            application.applicationIconBadgeNumber = 0;
-        } else {
-            NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)0, res.error);
-        }
+    // 更新角标
+    [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+        [CloudPushSDK syncBadgeNum:notifications.count withCallback:^(CloudPushCallbackResult *res) {
+            if (res.success) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    application.applicationIconBadgeNumber = notifications.count;
+                });
+            } else {
+                NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)notifications.count, res.error);
+            }
+        }];
     }];
 
     // 初始化SDK
@@ -262,19 +266,23 @@
     NSString *sound = [aps valueForKey:@"sound"];
     // 取得通知自定义字段内容，例：获取key为"Extras"的内容
     NSString *Extras = [userInfo valueForKey:@"Extras"]; //服务端中Extras字段，key是自己定义的
-    // 处理通知角标
-    NSInteger targetNum = content? badge : 0;
-    [CloudPushSDK syncBadgeNum:targetNum withCallback:^(CloudPushCallbackResult *res) {
-        if (res.success) {
-            [UIApplication sharedApplication].applicationIconBadgeNumber = targetNum;
-        } else {
-            NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)targetNum, res.error);
-        }
-    }];
     // 通知打开回执上报
     // [CloudPushSDK handleReceiveRemoteNotification:userInfo];(Deprecated from v1.8.1)
     [CloudPushSDK sendNotificationAck:userInfo];
+    // 日志
     NSLog(@"content = [%@], badge = [%ld], sound = [%@], Extras = [%@]", content, (long)badge, sound, Extras);
+    // 更新角标
+    [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+        [CloudPushSDK syncBadgeNum:notifications.count withCallback:^(CloudPushCallbackResult *res) {
+            if (res.success) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    application.applicationIconBadgeNumber = notifications.count;
+                });
+            } else {
+                NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)notifications.count, res.error);
+            }
+        }];
+    }];
 }
 
 
@@ -306,7 +314,20 @@
     if ([userAction isEqualToString:customAction2]) {
         NSLog(@"User custom action2.");
     }
+    // 处理通知
     completionHandler();
+    // 更新角标
+    [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+        [CloudPushSDK syncBadgeNum:notifications.count withCallback:^(CloudPushCallbackResult *res) {
+            if (res.success) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [UIApplication sharedApplication].applicationIconBadgeNumber = notifications.count;
+                });
+            } else {
+                NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)notifications.count, res.error);
+            }
+        }];
+    }];
 }
 
 #pragma mark - UNUserNotificationCenterDelegate 前台收到通知
@@ -319,9 +340,20 @@
     NSLog(@"userNotificationCenter -> willPresentNotification");
     // 处理iOS 10通知，并上报通知打开回执
     [self handleiOS10Notification:notification withType:@"notificationReceived"];
-
     // 通知弹出
     completionHandler(UNNotificationPresentationOptionAlert);
+    // 更新角标
+    [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+        [CloudPushSDK syncBadgeNum:notifications.count withCallback:^(CloudPushCallbackResult *res) {
+            if (res.success) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [UIApplication sharedApplication].applicationIconBadgeNumber = notifications.count;
+                });
+            } else {
+                NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)notifications.count, res.error);
+            }
+        }];
+    }];
 }
 
 /**
@@ -343,20 +375,10 @@
     NSString *subtitle = content.subtitle;
     // 内容
     NSString *body = content.body;
-
     // 角标
     int badge = [content.badge intValue];
     // 取得通知自定义字段内容，例：获取key为"Extras"的内容
     NSString *extras = [userInfo valueForKey:@"Extras"];
-    // 处理通知角标
-    int targetNum = [type isEqual: @"notificationReceived"]? badge : 0;
-    [CloudPushSDK syncBadgeNum:targetNum withCallback:^(CloudPushCallbackResult *res) {
-        if (res.success) {
-            [UIApplication sharedApplication].applicationIconBadgeNumber = targetNum;
-        } else {
-            NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)targetNum, res.error);
-        }
-    }];
     // 通知打开回执上报
     [CloudPushSDK sendNotificationAck:userInfo];
     NSLog(@"Notification, date: %@, title: %@, subtitle: %@, body: %@, badge: %d, extras: %@.", noticeDate, title, subtitle, body, badge, extras);
