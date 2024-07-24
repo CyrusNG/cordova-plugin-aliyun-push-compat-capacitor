@@ -275,7 +275,7 @@ public class AliyunPush extends CordovaPlugin {
       sendNoResultPluginResult(callbackContext);
       ret = true;
     } else if ("removeAlias".equalsIgnoreCase(action)) {
-      final String alias = args.getString(0);
+      final String alias = args.isNull(0)? null : args.getString(0);
       cordova
         .getThreadPool()
         .execute(
@@ -305,7 +305,7 @@ public class AliyunPush extends CordovaPlugin {
         .getThreadPool()
         .execute(
           () -> {
-            LOG.d(TAG, "PushManager#removeAlias");
+            LOG.d(TAG, "PushManager#listAliases");
             pushService.listAliases(
               new CommonCallback() {
                 @Override
