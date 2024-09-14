@@ -454,11 +454,38 @@ android {
 
     检查是否配置了`network_security_config.xml`信息，具体百度了解
 
-  - 构建`apk`时候报错: Missing classes detected while running R8.？
-  
-    在`app`的`proguard-rules.pro`中添加以下内容：
+  - 构建`apk`时候报错`Missing classes detected while running R8.`或者启动App时闪退？
+    
+    这是构建时使用了混淆导致的，在`app`的`proguard-rules.pro`中添加以下内容：
 
     ```
+      # Rules for general channel of aliyun EMAS
+      -keepclasseswithmembernames class ** {
+          native <methods>;
+      }
+      -keepattributes Signature
+      -keep class sun.misc.Unsafe { *; }
+      -keep class com.taobao.** {*;}
+      -keep class com.alibaba.** {*;}
+      -keep class com.alipay.** {*;}
+      -keep class com.ut.** {*;}
+      -keep class com.ta.** {*;}
+      -keep class anet.**{*;}
+      -keep class anetwork.**{*;}
+      -keep class org.android.spdy.**{*;}
+      -keep class org.android.agoo.**{*;}
+      -keep class android.os.**{*;}
+      -keep class org.json.**{*;}
+      -dontwarn com.taobao.**
+      -dontwarn com.alibaba.**
+      -dontwarn com.alipay.**
+      -dontwarn anet.**
+      -dontwarn org.android.spdy.**
+      -dontwarn org.android.agoo.**
+      -dontwarn anetwork.**
+      -dontwarn com.ut.**
+      -dontwarn com.ta.**
+
       # Rules for xiaomi push channel of aliyun EMAS
       -keep class com.xiaomi.** {*;}
       -dontwarn com.xiaomi.**

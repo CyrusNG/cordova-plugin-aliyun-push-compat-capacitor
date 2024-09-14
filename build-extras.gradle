@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    //阿里云推送基础依赖
     implementation 'com.aliyun.ams:alicloud-android-push:3.9.0'
     //小米依赖
     implementation 'com.aliyun.ams:alicloud-android-third-push-xiaomi:3.9.0'
