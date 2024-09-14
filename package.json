@@ -16,5 +16,8 @@
   "repository": {
     "url": "git@github.com:cyrusng/cordova-plugin-aliyun-push-compat-capacitor.git"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "dependencies": {}
 }
