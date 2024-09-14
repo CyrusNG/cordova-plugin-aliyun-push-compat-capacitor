@@ -454,6 +454,39 @@ android {
 
     检查是否配置了`network_security_config.xml`信息，具体百度了解
 
+  - 构建`apk`时候报错: Missing classes detected while running R8.？
+  
+    在`app`的`proguard-rules.pro`中添加以下内容：
+
+    ```
+      # Rules for xiaomi push channel of aliyun EMAS
+      -keep class com.xiaomi.** {*;}
+      -dontwarn com.xiaomi.**
+
+      # Rules for huawei push channel of aliyun EMAS
+      -keep class com.huawei.** {*;}
+      -dontwarn com.huawei.**
+
+      # Rules for honor push channel of aliyun EMAS
+      -ignorewarnings
+      -keepattributes *Annotation*
+      -keepattributes Exceptions
+      -keepattributes InnerClasses
+      -keepattributes Signature
+      -keepattributes SourceFile,LineNumberTable
+      -keep class com.hihonor.push.**{*;}
+
+      # Rules for vivo push channel of aliyun EMAS
+      -keep class com.vivo.** {*;}
+      -dontwarn com.vivo.**
+
+      # Rules for oppo push channel of aliyun EMAS
+      -keep public class * extends android.app.Service
+
+      # Rules for meizu push channel of aliyun EMAS
+      -keep class com.meizu.cloud.** {*;}
+      -dontwarn com.meizu.cloud.**
+    ```
 
 - `iOS`
 
