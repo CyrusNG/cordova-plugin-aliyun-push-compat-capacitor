@@ -84,11 +84,22 @@ public class AliyunPush extends CordovaPlugin {
     boolean ret = false;
     if ("boot".equalsIgnoreCase(action)) {
       try {
-        initPushService(cordova.getActivity().getApplication());
+        initPushService(cordova.getActivity().getApplication(), new CommonCallback() {
+          @Override
+          public void onSuccess(String s) {
+            callbackContext.success(s);
+            String deviceId = pushService.getDeviceId();
+            Log.d(TAG, "deviceId: " + deviceId);
+          }
+          @Override
+          public void onFailed(String s, String s1) {
+            resError(callbackContext, s, s1);
+            Log.d(TAG, "init cloudChannel failed -- errorCode:" + s + " -- errorMessage:" + s1);
+          }
+        });
       } catch (PackageManager.NameNotFoundException e) {
         e.printStackTrace();
       }
-      callbackContext.success();
       ret = true;
     } else if ("onMessage".equalsIgnoreCase(action)) {
       if (pushCallbackContext == null) {

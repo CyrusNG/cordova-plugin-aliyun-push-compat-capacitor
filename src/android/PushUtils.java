@@ -39,7 +39,7 @@ public class PushUtils {
      *
      * @param application Application
      */
-    static void initPushService(final Application application) throws PackageManager.NameNotFoundException {
+    static void initPushService(final Application application, CommonCallback commonCallback) throws PackageManager.NameNotFoundException {
         PushServiceFactory.init(application);
         final CloudPushService pushService = PushServiceFactory.getCloudPushService();
         final ApplicationInfo appInfo = application.getPackageManager().getApplicationInfo(application.getPackageName(), PackageManager.GET_META_DATA);
@@ -47,18 +47,7 @@ public class PushUtils {
         if (enableDebug) {
             pushService.setLogLevel(CloudPushService.LOG_DEBUG);
         }
-        pushService.register(application, new CommonCallback() {
-            @Override
-            public void onSuccess(String response) {
-                String deviceId = pushService.getDeviceId();
-                Log.d(TAG, "deviceId: " + deviceId);
-            }
-
-            @Override
-            public void onFailed(String errorCode, String errorMessage) {
-                Log.d(TAG, "init cloudChannel failed -- errorCode:" + errorCode + " -- errorMessage:" + errorMessage);
-            }
-        });
+        pushService.register(application, commonCallback);
 
         createDefaultChannel(application);
 
