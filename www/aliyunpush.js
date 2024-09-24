@@ -29,19 +29,28 @@ var AliyunPush = {
   },
 
   /**
-   * 是否开启了通知的权限
-   * @return {boolean}
+   * 检查通知的权限
+   * @param  {boolean} force 检查到没权限时直接申请权限
+   * @return {object} { granted: true, asked: 5 }
    */
-  isEnableNotification: async function () {
-   return await this._callNative('isEnableNotification', []);
+  checkPermission: async function (force) {
+   return await this._callNative('checkPermission', [force]);
   },
 
   /**
-   * 没有权限时，请求开通通知权限，其他路过
+   * 打开App设置页
    * @return {void}
    */
-  requireNotifyPermission: async function () {
-    return await this._callNative('requireNotifyPermission', []);
+  openAppSettings: async function () {
+    return await this._callNative('openAppSettings', []);
+  },
+
+  /**
+   * 没有权限时，请求开通通知权限
+   * @return {void}
+   */
+  requestPermission: async function () {
+    return await this._callNative('requestPermission', []);
   },
 
   /**

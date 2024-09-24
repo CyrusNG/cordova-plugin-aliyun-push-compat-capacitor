@@ -1,7 +1,9 @@
 package com.alipush;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.alipush.PushUtils.initPushService;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -12,6 +14,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationManagerCompat;
@@ -22,6 +25,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.apache.cordova.CallbackContext;
@@ -29,6 +34,7 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
+import org.apache.cordova.PermissionHelper;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,14 +64,6 @@ public class AliyunPush extends CordovaPlugin {
   public void initialize(CordovaInterface cordova, CordovaWebView webView) {
     preference = PreferenceManager.getDefaultSharedPreferences(cordova.getContext());
     super.initialize(cordova, webView);
-  }
-
-  @Override
-  protected void pluginInitialize() {
-    super.pluginInitialize();
-    if (!isNotificationEnabled(cordova.getContext())) {
-      showRequestNotifyDialog(cordova.getActivity(), null);
-    }
   }
 
   /**
@@ -107,14 +105,20 @@ public class AliyunPush extends CordovaPlugin {
         new PushUtils(cordova.getActivity()).getNotice();
       }
       ret = true;
-    } else if ("isEnableNotification".equalsIgnoreCase(action)) {
-      boolean enable = isNotificationEnabled(cordova.getContext());
-      JSONObject jsonObject = new JSONObject();
-      jsonObject.put("enable", enable);
-      callbackContext.success(jsonObject);
+    } else if ("checkPermission".equalsIgnoreCase(action)) {
+      try {
+        final Boolean force = args.isNull(0)? false : args.getBoolean(0);
+        checkPermission(callbackContext, PERMISSION_NAME, force);
+      } catch (JSONException e) {
+        //Believe exception only occurs when adding duplicate keys, so just ignore it
+        e.printStackTrace();
+      }
       ret = true;
-    } else if ("requireNotifyPermission".equalsIgnoreCase(action)) {
-      showRequestNotifyDialog(cordova.getActivity(), callbackContext);
+    } else if ("openAppSettings".equalsIgnoreCase(action)) {
+      openAppSettings();
+      ret = true;
+    } else if ("requestPermission".equalsIgnoreCase(action)) {
+      requestPermission(callbackContext, PERMISSION_NAME);
       ret = true;
     } else if ("getRegisterId".equalsIgnoreCase(action)) {
       callbackContext.success(pushService.getDeviceId());
@@ -386,23 +390,19 @@ public class AliyunPush extends CordovaPlugin {
     return arr;
   }
 
-  /**
-   * 判断允许通知，是否已经授权
-   * 返回值为true时，通知栏打开，false未打开。
-   *
-   * @param context 上下文
-   */
-  @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-  private static boolean isNotificationEnabled(Context context) {
-    return NotificationManagerCompat.from(context).areNotificationsEnabled();
-  }
 
-  /**
-   * 跳转到app的设置界面--开启通知
-   *
-   * @param context Context
-   */
-  private static void goToNotificationSetting(Activity context) {
+  private static final String TAG_PERMISSION = "permission";
+  private static final String GRANTED = "granted";
+  //private static final String DENIED = "denied";
+  private static final String ASKED = "asked";
+  //private static final String NEVER_ASKED = "neverAsked";
+  private static final String PERMISSION_NAME = Manifest.permission.POST_NOTIFICATIONS;
+  private static final int REQUEST_CODE_ENABLE_PERMISSION = 55433;
+  private JSONObject savedReturnObject;
+  private CallbackContext permissionsCallback;
+
+  private void openAppSettings() {
+    Activity context = cordova.getActivity();
     Intent intent = new Intent();
     if (Build.VERSION.SDK_INT >= 26) {
       // android 8.0引导
@@ -425,53 +425,106 @@ public class AliyunPush extends CordovaPlugin {
     context.startActivity(intent);
   }
 
-  private static void showRequestNotifyDialog(
-    final Activity context,
-    final CallbackContext callbackContext
-  ) {
-    final Resources resources = context.getResources();
-    final int title = resources.getIdentifier(
-      "aliyun_dialog_title",
-      "string",
-      context.getPackageName()
-    );
-    final int msg = resources.getIdentifier(
-      "aliyun_dialog_message",
-      "string",
-      context.getPackageName()
-    );
-    final int negativeText = resources.getIdentifier(
-      "aliyun_dialog_negative_text",
-      "string",
-      context.getPackageName()
-    );
-    final int positiveText = resources.getIdentifier(
-      "aliyun_dialog_positive_text",
-      "string",
-      context.getPackageName()
-    );
-    new AlertDialog.Builder(context)
-      .setTitle(title)
-      .setMessage(msg)
-      .setNegativeButton(
-        negativeText,
-        (dialog, which) -> {
-          if (callbackContext != null) {
-            callbackContext.error("Permission dined.");
+  private void checkPermission(CallbackContext callbackContext, String permission, Boolean force) throws JSONException {
+    this.savedReturnObject = new JSONObject();
+    // check if asked before
+    int askedCount = getPermissionAskedCount(PERMISSION_NAME);
+    this.savedReturnObject.put(ASKED, askedCount);
+    if (cordova.hasPermission(permission)) {
+      // permission GRANTED
+      this.savedReturnObject.put(GRANTED, true);
+    } else {
+      // permission NOT YET GRANTED
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        // from version Android M on,
+        // on runtime,
+        // each permission can be temporarily denied,
+        // or be denied forever
+        if (askedCount == 0 || cordova.getActivity().shouldShowRequestPermissionRationale(PERMISSION_NAME)) {
+          // permission never asked before
+          // OR
+          // permission DENIED, BUT not for always
+          // So
+          // can be asked (again)
+          if (force) {
+            // request permission
+            // so a callback as onRequestPermissionResult()
+            requestPermission(callbackContext, permission);
+            return;
+          } else {
+            this.savedReturnObject.put(GRANTED, false);
           }
+        } else {
+          // permission DENIED
+          // user ALSO checked "NEVER ASK AGAIN"
+          this.savedReturnObject.put(GRANTED, false);
         }
-      )
-      .setPositiveButton(
-        positiveText,
-        (dialog, which) -> {
-          goToNotificationSetting(context);
-          if (callbackContext != null) {
-            callbackContext.success();
-          }
+      } else {
+        // below android M
+        // no runtime permissions exist
+        // so always
+        // permission GRANTED
+        this.savedReturnObject.put(GRANTED, true);
+      }
+    }
+    callbackContext.success(this.savedReturnObject);
+  }
+
+  private void requestPermission(CallbackContext callbackContext, String permission) {
+    permissionsCallback = callbackContext;
+    cordova.requestPermissions(this, REQUEST_CODE_ENABLE_PERMISSION, new String[]{permission});
+  }
+
+  @Override
+  public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
+    // No stored plugin call for permissions request result
+    if (this.savedReturnObject == null) { return; }
+    // the user was apparently requested this permission
+    // update the preferences to reflect this
+    // indicate that the user has been asked to accept this permission
+    this.savedReturnObject.put(ASKED, countPermissionAskedCount(PERMISSION_NAME));
+    // check permission status
+    boolean granted = cordova.hasPermission(permissions[0]);
+    if (granted) {
+      // permission GRANTED
+      Log.d(TAG_PERMISSION, "Asked. Granted");
+      this.savedReturnObject.put(GRANTED, true);
+    } else {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (cordova.getActivity().shouldShowRequestPermissionRationale(PERMISSION_NAME)) {
+          // permission DENIED
+          // BUT not for always
+          Log.d(TAG_PERMISSION, "Asked. Denied For Now");
+        } else {
+          // permission DENIED
+          // user ALSO checked "NEVER ASK AGAIN"
+          Log.d(TAG_PERMISSION, "Asked. Denied");
+          this.savedReturnObject.put(GRANTED, false);  //this.savedReturnObject.put(DENIED, true);
         }
-      )
-      .create()
-      .show();
+      } else {
+        // below android M
+        // no runtime permissions exist
+        // so always
+        // permission GRANTED
+        Log.d(TAG_PERMISSION, "Asked. Granted");
+        this.savedReturnObject.put(GRANTED, true);
+      }
+    }
+    // resolve saved call
+    permissionsCallback.success(this.savedReturnObject);
+    // release saved vars
+    this.savedReturnObject = null;
+  }
+
+  private static final String PREFS_PERMISSION_ASKED_COUNT = "PREFS_PERMISSION_ASKED_COUNT";
+  private int countPermissionAskedCount(String permission) {
+    int currentCount = getPermissionAskedCount(permission);
+    SharedPreferences sharedPreference = cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_ASKED_COUNT, MODE_PRIVATE);
+    sharedPreference.edit().putInt(permission, currentCount + 1).apply();
+    return currentCount + 1;
+  }
+  private int getPermissionAskedCount(String permission) {
+    return cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_ASKED_COUNT, MODE_PRIVATE).getInt(permission, 0);
   }
 
 }
