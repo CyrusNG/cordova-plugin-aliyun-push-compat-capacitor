@@ -22,7 +22,7 @@
 
 #pragma mark - SDK Init AliyunEmasServices-Info.plist
 
-- (void)initCloudPush: (UIApplication *)application;
+- (void)initCloudPush: (UIApplication *)application callback:(void (^)(BOOL result))callback;
 
 #pragma mark - 绑定信息
 

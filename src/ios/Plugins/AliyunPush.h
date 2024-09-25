@@ -14,6 +14,26 @@
 - (void)onMessage:(CDVInvokedUrlCommand*)command;
 
 /**
+  检查通知权限
+ */
+- (void)checkPermission:(CDVInvokedUrlCommand*)command;
+
+/**
+请求通知权限
+*/
+- (void)requestPermission:(CDVInvokedUrlCommand*)command;
+
+/**
+  打开App设置页面
+ */
+- (void)openAppSettings:(CDVInvokedUrlCommand*)command;
+
+/**
+ * 启动阿里云推送服务
+ */
+- (void)boot:(CDVInvokedUrlCommand*)command;
+
+/**
  * 阿里云推送绑定账号名
  * 获取设备唯一标识deviceId，deviceId为阿里云移动推送过程中对设备的唯一标识（并不是设备UUID/UDID）
  */
@@ -29,16 +49,6 @@
 * 阿里云推送账号解绑
 */
 - (void)unbindAccount:(CDVInvokedUrlCommand*)command;
-
-/**
- * 是否开启了通知
- */
-- (void)isEnableNotification:(CDVInvokedUrlCommand*)command;
-
-/**
- * 阿里云推送
- */
-- (void)requireNotifyPermisssion:(CDVInvokedUrlCommand*)command;
 
 /**
  *绑定标签

@@ -28,7 +28,7 @@ static AliyunPushDelegate* _instance = nil;
                                                  name:UIApplicationDidFinishLaunchingNotification object:nil];
 }
 
-+(void)boot {
++(void)boot:(void (^)(BOOL result))callback {
     // 绑定事件
     AliyunPushDelegate* _self = [AliyunPushDelegate getInstance];
     [[NSNotificationCenter defaultCenter] addObserver:_self
@@ -41,7 +41,7 @@ static AliyunPushDelegate* _instance = nil;
                                              selector:@selector(applicationDidReceiveRemoteNotification:)
                                                  name:@"CDApplicationDidReceiveRemoteNotificationNotification" object:nil];
     // 初始化SDK
-    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] initCloudPush: [UIApplication sharedApplication]];
+    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] initCloudPush: [UIApplication sharedApplication] callback: callback];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification

@@ -139,7 +139,7 @@
 
 
 #pragma mark SDK Init AliyunEmasServices-Info.plist
-- (void)initCloudPush: (UIApplication *)application {
+- (void)initCloudPush: (UIApplication *)application callback:(void (^)(BOOL result))callback {
 
     // 使用CapacitorCordova原有的CDVConfigParser解释config.xml
     // NSString *configPath = [[NSBundle mainBundle] pathForResource:@"config" ofType:@"xml"];
@@ -163,18 +163,18 @@
     NSString *appSecret = [aliyunPushConfig objectForKey:@"App Secret"];
     Boolean enableDebug = [[aliyunPushConfig objectForKey:@"Debug"] boolValue];
 
-    if (enableDebug) {
-        [CloudPushSDK turnOnDebug];
-    }
+    if (enableDebug) { [CloudPushSDK turnOnDebug]; }
 
     [CloudPushSDK asyncInit:appKey appSecret:appSecret callback:^(CloudPushCallbackResult *res) {
-            if (res.success) {
-                NSLog(@"Push SDK init success, deviceId: %@.", [CloudPushSDK getDeviceId]);
-                // APNs注册，获取deviceToken并上报
-                [self registerAPNS:application];
-            } else {
-                NSLog(@"Push SDK init failed, error: %@", res.error);
-            }
+        if (res.success) {
+            NSLog(@"Push SDK init success, deviceId: %@.", [CloudPushSDK getDeviceId]);
+            // APNs注册，获取deviceToken并上报
+            [self registerAPNS:application];
+        } else {
+            NSLog(@"Push SDK init failed, error: %@", res.error);
+        }
+        // result callback
+        callback(res.success);
     }];
 }
 

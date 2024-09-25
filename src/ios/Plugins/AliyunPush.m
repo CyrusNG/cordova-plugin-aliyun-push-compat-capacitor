@@ -132,7 +132,7 @@
   检查通知权限
  */
 - (void)checkPermission:(CDVInvokedUrlCommand*)command {
-    BOOL force = [command.arguments objectAtIndex:0]?: NO;
+    BOOL force = [[command.arguments objectAtIndex:0] isEqual: @YES]? YES: NO;
 
     NSMutableDictionary *savedReturnObject = [NSMutableDictionary dictionary];
 
@@ -140,6 +140,7 @@
         
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
         [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            
             switch (settings.authorizationStatus) {
                 // User hasn't accepted or rejected permissions yet. This block shows the allow/deny dialog
                 case UNAuthorizationStatusNotDetermined:
@@ -155,23 +156,15 @@
                     savedReturnObject[@"unknown"] = @YES;
                     break;
             }
-        }];
-
-        if (force && savedReturnObject[@"neverAsked"] != nil) {
-            savedReturnObject[@"asked"] = @YES;
-            // iOS 10+
-            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-            [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge) completionHandler:^(BOOL granted, NSError * _Nullable error) {
-                if(granted) {
-                    savedReturnObject[@"granted"] = @YES;
-                } else {
-                    savedReturnObject[@"denied"] = @YES;
-                }
+            
+            if(savedReturnObject[@"neverAsked"] == nil) { savedReturnObject[@"asked"] = @YES; }
+            
+            if (force && savedReturnObject[@"neverAsked"] != nil) {
+                [self requestPermission: command];
+            } else {
                 [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
-            }];
-        } else {
-            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
-        }
+            }
+        }];
     });
 }
 
@@ -179,13 +172,16 @@
 请求通知权限
 */
 - (void)requestPermission:(CDVInvokedUrlCommand*)command{
+    
     NSMutableDictionary *savedReturnObject = [NSMutableDictionary dictionary];
+    
     float systemVersionNum = [[[UIDevice currentDevice] systemVersion] floatValue];
     
     // iOS 10+ Notifications Permission
     if (systemVersionNum >= 10.0) {
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
         [center requestAuthorizationWithOptions: (UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound) completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            savedReturnObject[@"asked"] = @YES;
             if(granted) { savedReturnObject[@"granted"] = @YES; }
             else { savedReturnObject[@"denied"] = @YES; }
             [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
@@ -197,6 +193,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
         [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes: (UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound) categories:nil]];
+        savedReturnObject[@"asked"] = @YES;
         savedReturnObject[@"granted"] = @YES;
         [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
 #pragma clang diagnostic pop
@@ -205,6 +202,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes: (UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound)];
+        savedReturnObject[@"asked"] = @YES;
         savedReturnObject[@"granted"] = @YES;
         [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
 #pragma clang diagnostic pop
@@ -228,12 +226,13 @@
  * 启动阿里云推送服务
  */
 - (void)boot:(CDVInvokedUrlCommand*)command{
-
-    [AliyunPushDelegate boot];
-
-    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    [AliyunPushDelegate boot:^(BOOL result) {
+        if(result) {
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
+        } else {
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR] callbackId:command.callbackId];
+        }
+    }];
 }
 
 /**
@@ -392,7 +391,7 @@
     NSString* aliases = [command.arguments objectAtIndex:0];
     
     // bugfix: cordova throw [NSNull length] error when aliases is null 
-    if(aliases == (NSString *)[NSNull null]) { aliases = @""; }
+    if([aliases isEqual:[NSNull null]]) { aliases = @""; }
     
     [[AliyunNotificationLauncher sharedAliyunNotificationLauncher]
         removeAlias:aliases andCallback:^(BOOL result) {
