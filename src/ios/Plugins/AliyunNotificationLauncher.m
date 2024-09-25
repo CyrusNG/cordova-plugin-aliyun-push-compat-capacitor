@@ -36,21 +36,23 @@
     // 如果​remoteNotification不为空，代表有推送发过来，以下类似
     if (remoteNotification) { _remoteinfo = remoteNotification; }
     
-    // 更新角标
-    [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
-        [CloudPushSDK syncBadgeNum:notifications.count withCallback:^(CloudPushCallbackResult *res) {
-            if (res.success) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    application.applicationIconBadgeNumber = notifications.count;
-                });
-            } else {
-                NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)notifications.count, res.error);
-            }
+    // 如果CloudPush以初始化获得deviceId则更新角标
+    if([self getDeviceId]) {
+        [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+            [CloudPushSDK syncBadgeNum:notifications.count withCallback:^(CloudPushCallbackResult *res) {
+                if (res.success) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        application.applicationIconBadgeNumber = notifications.count;
+                    });
+                } else {
+                    NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)notifications.count, res.error);
+                }
+            }];
         }];
-    }];
+    }
 
-    // 初始化SDK
-    [self initCloudPush:application];
+    // 初始化SDK - 现在需要JS调用boot()才会初始化（更弹性）
+    //[self initCloudPush:application];
 
     // 监听推送通道打开动作
     [self listenerOnChannelOpened];
@@ -81,7 +83,7 @@
         _notificationCenter.delegate = self;
 
         // 请求推送权限
-        [_notificationCenter requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        [_notificationCenter requestAuthorizationWithOptions: (UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound) completionHandler:^(BOOL granted, NSError * _Nullable error) {
             if (granted) {
                 // granted
                 NSLog(@"User authored notification.");
@@ -98,18 +100,14 @@
         // iOS 8 Notifications
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
-        [application registerUserNotificationSettings:
-         [UIUserNotificationSettings settingsForTypes:
-          (UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge)
-                                           categories:nil]];
+        [application registerUserNotificationSettings: [UIUserNotificationSettings settingsForTypes: ( UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound) categories:nil]];
         [application registerForRemoteNotifications];
 #pragma clang diagnostic pop
     } else {
         // iOS < 8 Notifications
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:
-         (UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound)];
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes: (UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound)];
 #pragma clang diagnostic pop
     }
 }

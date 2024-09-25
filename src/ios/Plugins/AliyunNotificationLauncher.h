@@ -20,6 +20,10 @@
 
 - (void)didReceiveRemoteNotification:(NSDictionary *)userInfo andApplication:(UIApplication *)application;
 
+#pragma mark - SDK Init AliyunEmasServices-Info.plist
+
+- (void)initCloudPush: (UIApplication *)application;
+
 #pragma mark - 绑定信息
 
 - (NSString *)getDeviceId;

@@ -29,6 +29,7 @@ static AliyunPushDelegate* _instance = nil;
 }
 
 +(void)boot {
+    // 绑定事件
     AliyunPushDelegate* _self = [AliyunPushDelegate getInstance];
     [[NSNotificationCenter defaultCenter] addObserver:_self
                                              selector:@selector(applicationDidRegisterForRemoteNotifications:)
@@ -39,6 +40,8 @@ static AliyunPushDelegate* _instance = nil;
     [[NSNotificationCenter defaultCenter] addObserver:_self
                                              selector:@selector(applicationDidReceiveRemoteNotification:)
                                                  name:@"CDApplicationDidReceiveRemoteNotificationNotification" object:nil];
+    // 初始化SDK
+    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] initCloudPush: [UIApplication sharedApplication]];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification

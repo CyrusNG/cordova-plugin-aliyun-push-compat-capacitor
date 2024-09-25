@@ -175,22 +175,41 @@
     });
 }
 
- /**
-  请求通知权限
- */
- - (void)requestPermission:(CDVInvokedUrlCommand*)command{
+/**
+请求通知权限
+*/
+- (void)requestPermission:(CDVInvokedUrlCommand*)command{
     NSMutableDictionary *savedReturnObject = [NSMutableDictionary dictionary];
-    // iOS 10+
-	UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-	[center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge) completionHandler:^(BOOL granted, NSError * _Nullable error) {
-        if(granted) {
-            savedReturnObject[@"granted"] = @YES;
-        } else {
-            savedReturnObject[@"denied"] = @YES;
-        }
+    float systemVersionNum = [[[UIDevice currentDevice] systemVersion] floatValue];
+    
+    // iOS 10+ Notifications Permission
+    if (systemVersionNum >= 10.0) {
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        [center requestAuthorizationWithOptions: (UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound) completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            if(granted) { savedReturnObject[@"granted"] = @YES; }
+            else { savedReturnObject[@"denied"] = @YES; }
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
+        }];
+        
+    // iOS 8+ Notifications Permission
+    }else if (systemVersionNum >= 8.0) {
+        // iOS 8 Notifications
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored"-Wdeprecated-declarations"
+        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes: (UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound) categories:nil]];
+        savedReturnObject[@"granted"] = @YES;
         [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
-    }];
- }
+#pragma clang diagnostic pop
+    // legacy iOS Notifications Permission
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored"-Wdeprecated-declarations"
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes: (UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound)];
+        savedReturnObject[@"granted"] = @YES;
+        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
+#pragma clang diagnostic pop
+    }
+}
 
 /**
   打开App设置页面
