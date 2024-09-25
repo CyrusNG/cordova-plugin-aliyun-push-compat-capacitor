@@ -34,36 +34,6 @@
 //    });
 }
 
-
-/**
-  弹出通知请求
- */
-- (void)requireNotifyPermission:(CDVInvokedUrlCommand*)command{
-    NSString *title = NSLocalizedStringWithDefaultValue(@"aliyun_dialog_title", @"Localizable", NSBundle.mainBundle, @"Require notification permission", nil);
-    NSString *message = NSLocalizedStringWithDefaultValue(@"aliyun_dialog_message", @"Localizable", NSBundle.mainBundle, @"Please turn on the notification permission.", nil);
-    NSString *cancelText = NSLocalizedStringWithDefaultValue(@"aliyun_dialog_negative_text", @"Localizable", NSBundle.mainBundle, @"IGNORE", nil);
-    NSString *settingText = NSLocalizedStringWithDefaultValue(@"aliyun_dialog_positive_text", @"Localizable", NSBundle.mainBundle, @"SETTING", nil);
-
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-
-    [alertController addAction:[UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:SWIFT_CDVCommandStatus_ERROR] callbackId:command.callbackId];
-    }]];
-
-    [alertController addAction:[UIAlertAction actionWithTitle:settingText style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-
-        if ([[UIDevice currentDevice].systemVersion floatValue] >= 10.0f) {
-
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:^(BOOL success) {}];
-        }else{
-             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-        }
-        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
-    }]];
-
-    [self.viewController presentViewController:alertController animated:YES completion:^{}];
-}
-
 #pragma mark AliyunNotification通知
 - (void)onNotificationReceived:(NSNotification *)notification {
 
@@ -134,18 +104,6 @@
 }
 
 /**
- * 启动阿里云推送服务
- */
-- (void)boot:(CDVInvokedUrlCommand*)command{
-
-    [AliyunPushDelegate boot];
-
-    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-}
-
-/**
  * 接收阿里云的消息
  */
 - (void)onMessage:(CDVInvokedUrlCommand*)command{
@@ -171,6 +129,95 @@
 }
 
 /**
+  检查通知权限
+ */
+- (void)checkPermission:(CDVInvokedUrlCommand*)command {
+    BOOL force = [command.arguments objectAtIndex:0]?: NO;
+
+    NSMutableDictionary *savedReturnObject = [NSMutableDictionary dictionary];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            switch (settings.authorizationStatus) {
+                // User hasn't accepted or rejected permissions yet. This block shows the allow/deny dialog
+                case UNAuthorizationStatusNotDetermined:
+                    savedReturnObject[@"neverAsked"] = @YES;
+                    break;
+                case UNAuthorizationStatusDenied:
+                    savedReturnObject[@"denied"] = @YES;
+                    break;
+                case UNAuthorizationStatusAuthorized:
+                    savedReturnObject[@"granted"] = @YES;
+                    break;
+                default:
+                    savedReturnObject[@"unknown"] = @YES;
+                    break;
+            }
+        }];
+
+        if (force && savedReturnObject[@"neverAsked"] != nil) {
+            savedReturnObject[@"asked"] = @YES;
+            // iOS 10+
+            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+            [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge) completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                if(granted) {
+                    savedReturnObject[@"granted"] = @YES;
+                } else {
+                    savedReturnObject[@"denied"] = @YES;
+                }
+                [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
+            }];
+        } else {
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
+        }
+    });
+}
+
+ /**
+  请求通知权限
+ */
+ - (void)requestPermission:(CDVInvokedUrlCommand*)command{
+    NSMutableDictionary *savedReturnObject = [NSMutableDictionary dictionary];
+    // iOS 10+
+	UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+	[center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge) completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        if(granted) {
+            savedReturnObject[@"granted"] = @YES;
+        } else {
+            savedReturnObject[@"denied"] = @YES;
+        }
+        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:savedReturnObject] callbackId:command.callbackId];
+    }];
+ }
+
+/**
+  打开App设置页面
+ */
+- (void)openAppSettings:(CDVInvokedUrlCommand*)command{
+    if ([[UIDevice currentDevice].systemVersion floatValue] >= 10.0f) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:^(BOOL success) {}];
+    }else{
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    }
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
+}
+
+
+/**
+ * 启动阿里云推送服务
+ */
+- (void)boot:(CDVInvokedUrlCommand*)command{
+
+    [AliyunPushDelegate boot];
+
+    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+}
+
+/**
  * 阿里云推送绑定账号名
  * 获取设备唯一标识deviceId，deviceId为阿里云移动推送过程中对设备的唯一标识（并不是设备UUID/UDID）
  */
@@ -187,36 +234,6 @@
     }
 
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-}
-
-/**
- * 是否开启了通知功能
- */
-- (void)isEnableNotification:(CDVInvokedUrlCommand*)command{
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-
-    [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings){
-        BOOL enable = false;
-        switch (settings.authorizationStatus) {
-            case UNAuthorizationStatusAuthorized: {
-                enable = true;
-                break;
-            }
-            case UNAuthorizationStatusDenied: {
-                enable = false;
-                break;
-            }
-            default: {
-                enable = false;
-                break;
-            }
-        }
-        NSDictionary *dict = [NSDictionary dictionaryWithObject:@(enable)forKey:@"enable" ];
-
-        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dict];
-
-        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-    }];
 }
 
 /**

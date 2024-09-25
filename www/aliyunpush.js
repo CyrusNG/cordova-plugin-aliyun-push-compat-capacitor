@@ -31,7 +31,7 @@ var AliyunPush = {
   /**
    * 检查通知的权限
    * @param  {boolean} force 检查到没权限时直接申请权限
-   * @return {object} { granted: true, asked: 5 }
+   * @return {object} flags -> granted, denied, asked, neverAsked, unknown (iOS only)
    */
   checkPermission: async function (force) {
    return await this._callNative('checkPermission', [force]);

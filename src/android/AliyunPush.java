@@ -5,36 +5,22 @@ import static com.alipush.PushUtils.initPushService;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.util.Log;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationManagerCompat;
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
-import org.apache.cordova.PermissionHelper;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -393,11 +379,11 @@ public class AliyunPush extends CordovaPlugin {
 
   private static final String TAG_PERMISSION = "permission";
   private static final String GRANTED = "granted";
-  //private static final String DENIED = "denied";
+  private static final String DENIED = "denied";
   private static final String ASKED = "asked";
-  //private static final String NEVER_ASKED = "neverAsked";
+  private static final String NEVER_ASKED = "neverAsked";
   private static final String PERMISSION_NAME = Manifest.permission.POST_NOTIFICATIONS;
-  private static final int REQUEST_CODE_ENABLE_PERMISSION = 55433;
+  private static final int REQUEST_CODE_ENABLE_PERMISSION = 0;
   private JSONObject savedReturnObject;
   private CallbackContext permissionsCallback;
 
@@ -427,20 +413,25 @@ public class AliyunPush extends CordovaPlugin {
 
   private void checkPermission(CallbackContext callbackContext, String permission, Boolean force) throws JSONException {
     this.savedReturnObject = new JSONObject();
-    // check if asked before
-    int askedCount = getPermissionAskedCount(PERMISSION_NAME);
-    this.savedReturnObject.put(ASKED, askedCount);
+
     if (cordova.hasPermission(permission)) {
       // permission GRANTED
       this.savedReturnObject.put(GRANTED, true);
     } else {
       // permission NOT YET GRANTED
+
+      // check if asked before
+      boolean neverAsked = isPermissionFirstTimeAsking(PERMISSION_NAME);
+      if (neverAsked) {
+          this.savedReturnObject.put(NEVER_ASKED, true);
+      }
+
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         // from version Android M on,
         // on runtime,
         // each permission can be temporarily denied,
         // or be denied forever
-        if (askedCount == 0 || cordova.getActivity().shouldShowRequestPermissionRationale(PERMISSION_NAME)) {
+        if (neverAsked || cordova.getActivity().shouldShowRequestPermissionRationale(PERMISSION_NAME)) {
           // permission never asked before
           // OR
           // permission DENIED, BUT not for always
@@ -451,13 +442,11 @@ public class AliyunPush extends CordovaPlugin {
             // so a callback as onRequestPermissionResult()
             requestPermission(callbackContext, permission);
             return;
-          } else {
-            this.savedReturnObject.put(GRANTED, false);
           }
         } else {
           // permission DENIED
           // user ALSO checked "NEVER ASK AGAIN"
-          this.savedReturnObject.put(GRANTED, false);
+          this.savedReturnObject.put(DENIED, true);
         }
       } else {
         // below android M
@@ -479,12 +468,19 @@ public class AliyunPush extends CordovaPlugin {
   public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
     // No stored plugin call for permissions request result
     if (this.savedReturnObject == null) { return; }
+    
     // the user was apparently requested this permission
     // update the preferences to reflect this
+    setPermissionFirstTimeAsking(PERMISSION_NAME, false);
+
+    boolean granted = false;
+    if (cordova.hasPermission(permissions[0])) {
+        granted = true;
+    }
+
     // indicate that the user has been asked to accept this permission
-    this.savedReturnObject.put(ASKED, countPermissionAskedCount(PERMISSION_NAME));
-    // check permission status
-    boolean granted = cordova.hasPermission(permissions[0]);
+    this.savedReturnObject.put(ASKED, true);
+
     if (granted) {
       // permission GRANTED
       Log.d(TAG_PERMISSION, "Asked. Granted");
@@ -499,7 +495,7 @@ public class AliyunPush extends CordovaPlugin {
           // permission DENIED
           // user ALSO checked "NEVER ASK AGAIN"
           Log.d(TAG_PERMISSION, "Asked. Denied");
-          this.savedReturnObject.put(GRANTED, false);  //this.savedReturnObject.put(DENIED, true);
+          this.savedReturnObject.put(DENIED, true);
         }
       } else {
         // below android M
@@ -516,15 +512,15 @@ public class AliyunPush extends CordovaPlugin {
     this.savedReturnObject = null;
   }
 
-  private static final String PREFS_PERMISSION_ASKED_COUNT = "PREFS_PERMISSION_ASKED_COUNT";
-  private int countPermissionAskedCount(String permission) {
-    int currentCount = getPermissionAskedCount(permission);
-    SharedPreferences sharedPreference = cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_ASKED_COUNT, MODE_PRIVATE);
-    sharedPreference.edit().putInt(permission, currentCount + 1).apply();
-    return currentCount + 1;
+  private static final String PREFS_PERMISSION_FIRST_TIME_ASKING = "PREFS_PERMISSION_FIRST_TIME_ASKING";
+
+  private void setPermissionFirstTimeAsking(String permission, boolean isFirstTime) {
+      SharedPreferences sharedPreference = cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_FIRST_TIME_ASKING, MODE_PRIVATE);
+      sharedPreference.edit().putBoolean(permission, isFirstTime).apply();
   }
-  private int getPermissionAskedCount(String permission) {
-    return cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_ASKED_COUNT, MODE_PRIVATE).getInt(permission, 0);
+
+  private boolean isPermissionFirstTimeAsking(String permission) {
+      return cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_FIRST_TIME_ASKING, MODE_PRIVATE).getBoolean(permission, true);
   }
 
 }
