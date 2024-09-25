@@ -384,7 +384,6 @@ public class AliyunPush extends CordovaPlugin {
   private static final String NEVER_ASKED = "neverAsked";
   private static final String PERMISSION_NAME = Manifest.permission.POST_NOTIFICATIONS;
   private static final int REQUEST_CODE_ENABLE_PERMISSION = 0;
-  private JSONObject savedReturnObject;
   private CallbackContext permissionsCallback;
 
   private void openAppSettings() {
@@ -412,20 +411,21 @@ public class AliyunPush extends CordovaPlugin {
   }
 
   private void checkPermission(CallbackContext callbackContext, String permission, Boolean force) throws JSONException {
-    this.savedReturnObject = new JSONObject();
+    JSONObject savedReturnObject = new JSONObject();
+
+    // check if asked before
+    boolean neverAsked = isPermissionFirstTimeAsking(PERMISSION_NAME);
+    if (neverAsked) {
+      savedReturnObject.put(NEVER_ASKED, true);
+    } else {
+      savedReturnObject.put(ASKED, true);
+    }
 
     if (cordova.hasPermission(permission)) {
       // permission GRANTED
-      this.savedReturnObject.put(GRANTED, true);
+      savedReturnObject.put(GRANTED, true);
     } else {
       // permission NOT YET GRANTED
-
-      // check if asked before
-      boolean neverAsked = isPermissionFirstTimeAsking(PERMISSION_NAME);
-      if (neverAsked) {
-          this.savedReturnObject.put(NEVER_ASKED, true);
-      }
-
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         // from version Android M on,
         // on runtime,
@@ -446,17 +446,17 @@ public class AliyunPush extends CordovaPlugin {
         } else {
           // permission DENIED
           // user ALSO checked "NEVER ASK AGAIN"
-          this.savedReturnObject.put(DENIED, true);
+          savedReturnObject.put(DENIED, true);
         }
       } else {
         // below android M
         // no runtime permissions exist
         // so always
         // permission GRANTED
-        this.savedReturnObject.put(GRANTED, true);
+        savedReturnObject.put(GRANTED, true);
       }
     }
-    callbackContext.success(this.savedReturnObject);
+    callbackContext.success(savedReturnObject);
   }
 
   private void requestPermission(CallbackContext callbackContext, String permission) {
@@ -466,25 +466,20 @@ public class AliyunPush extends CordovaPlugin {
 
   @Override
   public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
-    // No stored plugin call for permissions request result
-    if (this.savedReturnObject == null) { return; }
-    
+    JSONObject savedReturnObject = new JSONObject();
+
     // the user was apparently requested this permission
     // update the preferences to reflect this
     setPermissionFirstTimeAsking(PERMISSION_NAME, false);
 
-    boolean granted = false;
-    if (cordova.hasPermission(permissions[0])) {
-        granted = true;
-    }
-
     // indicate that the user has been asked to accept this permission
-    this.savedReturnObject.put(ASKED, true);
+    savedReturnObject.put(ASKED, true);
 
-    if (granted) {
+    // check permission granted or NOT
+    if (cordova.hasPermission(permissions[0])) {
       // permission GRANTED
       Log.d(TAG_PERMISSION, "Asked. Granted");
-      this.savedReturnObject.put(GRANTED, true);
+      savedReturnObject.put(GRANTED, true);
     } else {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         if (cordova.getActivity().shouldShowRequestPermissionRationale(PERMISSION_NAME)) {
@@ -495,7 +490,7 @@ public class AliyunPush extends CordovaPlugin {
           // permission DENIED
           // user ALSO checked "NEVER ASK AGAIN"
           Log.d(TAG_PERMISSION, "Asked. Denied");
-          this.savedReturnObject.put(DENIED, true);
+          savedReturnObject.put(DENIED, true);
         }
       } else {
         // below android M
@@ -503,13 +498,11 @@ public class AliyunPush extends CordovaPlugin {
         // so always
         // permission GRANTED
         Log.d(TAG_PERMISSION, "Asked. Granted");
-        this.savedReturnObject.put(GRANTED, true);
+        savedReturnObject.put(GRANTED, true);
       }
     }
     // resolve saved call
-    permissionsCallback.success(this.savedReturnObject);
-    // release saved vars
-    this.savedReturnObject = null;
+    permissionsCallback.success(savedReturnObject);
   }
 
   private static final String PREFS_PERMISSION_FIRST_TIME_ASKING = "PREFS_PERMISSION_FIRST_TIME_ASKING";

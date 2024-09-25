@@ -10,6 +10,6 @@
 @interface AliyunPushDelegate: NSObject
 
 +(AliyunPushDelegate*)getInstance;
-+(void)boot:(void (^)(BOOL result))callback;
++(void)boot:(void (^)(BOOL result, id response))callback;
 
 @end

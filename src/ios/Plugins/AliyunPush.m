@@ -226,11 +226,11 @@
  * 启动阿里云推送服务
  */
 - (void)boot:(CDVInvokedUrlCommand*)command{
-    [AliyunPushDelegate boot:^(BOOL result) {
+    [AliyunPushDelegate boot:^(BOOL result, id response) {
         if(result) {
             [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
         } else {
-            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR] callbackId:command.callbackId];
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response] callbackId:command.callbackId];
         }
     }];
 }
@@ -246,9 +246,9 @@
     CDVPluginResult *result;
 
     if(deviceId.length != 0){
-       result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:deviceId];
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:deviceId];
     }else{
-        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     }
 
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
@@ -263,14 +263,14 @@
 
     if(account.length != 0){
 
-        [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] bindAccountWithAccount:account andCallback:^(BOOL result) {
+        [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] bindAccountWithAccount:account andCallback:^(BOOL result, id response) {
 
             CDVPluginResult *cdvresult;
 
             if(result){
                 cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
             }else{
-                cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+                cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response];
             }
 
             [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
@@ -285,14 +285,14 @@
  */
 - (void)unbindAccount:(CDVInvokedUrlCommand*)command{
 
-    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] unbindAccountAndCallback:^(BOOL result) {
+    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] unbindAccountAndCallback:^(BOOL result, id response) {
 
         CDVPluginResult *cdvresult;
 
         if(result){
             cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }else{
-            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response];
         }
 
         [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
@@ -310,13 +310,13 @@
     NSArray *tags = [command.arguments objectAtIndex:1];
     NSString *alias = command.arguments.count > 2 ? [command.arguments objectAtIndex:2] : nil;
 
-    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] bindTagsWithTags:target :tags :alias andCallback:^(BOOL result) {
+    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] bindTagsWithTags:target :tags :alias andCallback:^(BOOL result, id response) {
         CDVPluginResult *cdvresult;
 
         if(result){
             cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }else{
-            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response];
         }
 
         [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
@@ -332,14 +332,14 @@
     NSArray *tags = [command.arguments objectAtIndex:1];
     NSString *alias = command.arguments.count > 2 ? [command.arguments objectAtIndex:2] : nil;
 
-    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] unbindTagsWithTags:target :tags :alias andCallback:^(BOOL result) {
+    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] unbindTagsWithTags:target :tags :alias andCallback:^(BOOL result, id response) {
 
         CDVPluginResult *cdvresult;
 
         if(result){
             cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }else{
-            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response];
         }
 
         [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
@@ -353,15 +353,15 @@
  */
 - (void)listTags:(CDVInvokedUrlCommand*)command{
 
-    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] listTagsAndCallback:^(id result) {
+    [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] listTagsAndCallback:^(BOOL result, id response) {
 
         CDVPluginResult *cdvresult;
 
-        if(result == [NSNull null] ){
+        if(result){
 
-            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response];
         }else{
-            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:(NSDictionary *)result];
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
         }
 
         [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
@@ -375,12 +375,12 @@
     NSString* aliases = [command.arguments objectAtIndex:0];
     if(aliases.length != 0){
         [[AliyunNotificationLauncher sharedAliyunNotificationLauncher]
-         addAlias:aliases andCallback:^(BOOL result) {
+         addAlias:aliases andCallback:^(BOOL result, id response) {
             CDVPluginResult *cdvresult;
             if(result){
                 cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
             }else{
-                cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+                cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response];
             }
             [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
         }];
@@ -394,13 +394,13 @@
     if([aliases isEqual:[NSNull null]]) { aliases = @""; }
     
     [[AliyunNotificationLauncher sharedAliyunNotificationLauncher]
-        removeAlias:aliases andCallback:^(BOOL result) {
+        removeAlias:aliases andCallback:^(BOOL result, id response) {
         CDVPluginResult *cdvresult;
 
         if(result){
             cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }else{
-            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response];
         }
 
         [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
@@ -409,15 +409,14 @@
 
 - (void)listAliases:(CDVInvokedUrlCommand*)command{
     [[AliyunNotificationLauncher sharedAliyunNotificationLauncher]
-     listAliases:^(id result) {
+     listAliases:^(BOOL result, id response) {
 
         CDVPluginResult *cdvresult;
 
-        if(result == [NSNull null] ){
-
-            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        if(result){
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response];
         }else{
-            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:(NSDictionary *)result];
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
         }
 
         [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];
@@ -430,13 +429,13 @@
     NSUInteger badgeNum = [stringNum integerValue];
     
     [[AliyunNotificationLauncher sharedAliyunNotificationLauncher]
-     syncBadgeNum:badgeNum andCallback:^(BOOL result) {
+     syncBadgeNum:badgeNum andCallback:^(BOOL result, id response) {
         CDVPluginResult *cdvresult;
 
         if(result){
             cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }else{
-            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            cdvresult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response];
         }
 
         [self.commandDelegate sendPluginResult:cdvresult callbackId:command.callbackId];

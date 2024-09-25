@@ -22,7 +22,7 @@
 
 #pragma mark - SDK Init AliyunEmasServices-Info.plist
 
-- (void)initCloudPush: (UIApplication *)application callback:(void (^)(BOOL result))callback;
+- (void)initCloudPush: (UIApplication *)application callback:(void (^)(BOOL result, id response))callback;
 
 #pragma mark - 绑定信息
 
@@ -31,22 +31,22 @@
 #pragma mark - 程序关闭 点击通知h进入
 - (NSDictionary *)getRemoteInfo;
 
-- (void)bindAccountWithAccount:(NSString *)account andCallback:(void (^)(BOOL result))callback;
+- (void)bindAccountWithAccount:(NSString *)account andCallback:(void (^)(BOOL result, id response))callback;
 
-- (void)bindTagsWithTags: (int )target :(NSArray *)tags :(NSString *)alias andCallback:(void (^)(BOOL result))callback;
+- (void)bindTagsWithTags: (int )target :(NSArray *)tags :(NSString *)alias andCallback:(void (^)(BOOL result, id response))callback;
 
-- (void)unbindTagsWithTags:(int )target :(NSArray *)tags :(NSString *)alias andCallback:(void (^)(BOOL result))callback;
+- (void)unbindTagsWithTags:(int )target :(NSArray *)tags :(NSString *)alias andCallback:(void (^)(BOOL result, id response))callback;
 
-- (void)listTagsAndCallback:(void (^)(id result))callback;
+- (void)listTagsAndCallback:(void (^)(BOOL result, id response))callback;
 
-- (void)unbindAccountAndCallback:(void (^)(BOOL result))callback;
+- (void)unbindAccountAndCallback:(void (^)(BOOL result, id response))callback;
 
-- (void)addAlias:(NSString *)alias andCallback:(void (^)(BOOL result))callback;
+- (void)addAlias:(NSString *)alias andCallback:(void (^)(BOOL result, id response))callback;
 
-- (void)removeAlias:(NSString *)alias andCallback:(void (^)(BOOL result))callback;
+- (void)removeAlias:(NSString *)alias andCallback:(void (^)(BOOL result, id response))callback;
 
-- (void)listAliases:(void (^)(id result))callback;
+- (void)listAliases:(void (^)(BOOL result, id response))callback;
 
-- (void)syncBadgeNum:(NSUInteger *)badgeNum andCallback:(void (^)(BOOL result))callback;
+- (void)syncBadgeNum:(NSUInteger *)badgeNum andCallback:(void (^)(BOOL result, id response))callback;
 
 @end

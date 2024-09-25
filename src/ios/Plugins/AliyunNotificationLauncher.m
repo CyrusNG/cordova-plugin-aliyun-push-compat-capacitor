@@ -139,7 +139,7 @@
 
 
 #pragma mark SDK Init AliyunEmasServices-Info.plist
-- (void)initCloudPush: (UIApplication *)application callback:(void (^)(BOOL result))callback {
+- (void)initCloudPush: (UIApplication *)application callback:(void (^)(BOOL result, id response))callback {
 
     // 使用CapacitorCordova原有的CDVConfigParser解释config.xml
     // NSString *configPath = [[NSBundle mainBundle] pathForResource:@"config" ofType:@"xml"];
@@ -174,7 +174,13 @@
             NSLog(@"Push SDK init failed, error: %@", res.error);
         }
         // result callback
-        callback(res.success);
+        // special success case -> error-1017 # SDK已经初始化完成
+        if(res.success || res.error.code == 1017) {
+            callback(YES, [NSNull null]);
+        } else {
+            callback(NO, [self resError:res]);
+        }
+
     }];
 }
 
@@ -407,81 +413,94 @@
 }
 
 #pragma mark - 绑定账号
-- (void)bindAccountWithAccount:(NSString *)account andCallback:(void (^)(BOOL result))callback{
+- (void)bindAccountWithAccount:(NSString *)account andCallback:(void (^)(BOOL result, id response))callback{
     [CloudPushSDK bindAccount:account withCallback:^(CloudPushCallbackResult *res) {
-        callback(res.success);
+        if(res.success) {
+            callback(YES, res.data?:res.error);
+        } else {
+            
+        }
     }];
 }
 
 #pragma mark - 绑定标签
-- (void)bindTagsWithTags: (int )target :(NSArray *)tags :(NSString *)alias andCallback:(void (^)(BOOL result))callback{
+- (void)bindTagsWithTags: (int )target :(NSArray *)tags :(NSString *)alias andCallback:(void (^)(BOOL result, id response))callback{
 
     [CloudPushSDK bindTag:target withTags:tags
                 withAlias:alias
              withCallback:^(CloudPushCallbackResult *res) {
 
-        callback(res.success);
+        callback(res.success, res.data?:[self resError:res]);
     }];
 
 }
 
 #pragma mark - 解除绑定
-- (void)unbindAccountAndCallback:(void (^)(BOOL result))callback{
+- (void)unbindAccountAndCallback:(void (^)(BOOL result, id response))callback{
     [CloudPushSDK unbindAccount:^(CloudPushCallbackResult *res) {
-        callback(res.success);
+        callback(res.success, res.data?:[self resError:res]);
     }];
 }
 //+ (void)unbindAccount:(CallbackHandler)callback;
 
 
 #pragma mark - 解除标签
-- (void)unbindTagsWithTags: (int )target :(NSArray *)tags :(NSString *)alias  andCallback:(void (^)(BOOL result))callback{
+- (void)unbindTagsWithTags: (int )target :(NSArray *)tags :(NSString *)alias  andCallback:(void (^)(BOOL result, id response))callback{
 
     [CloudPushSDK unbindTag:target withTags:tags withAlias:alias withCallback:^(CloudPushCallbackResult *res) {
-        callback(res.success);
+        callback(res.success, res.data?:[self resError:res]);
     }];
 }
 
 #pragma mark - 查询绑定
-- (void)listTagsAndCallback:(void (^)(id result))callback{
+- (void)listTagsAndCallback:(void (^)(BOOL result, id response))callback{
     [CloudPushSDK listTags:1 withCallback:^(CloudPushCallbackResult *res) {
-        callback(res.data);
+        callback(res.success, res.data?:[self resError:res]);
     }];
 }
 
 #pragma mark - 添加别名
-- (void)addAlias:(NSString *)alias andCallback:(void (^)(BOOL result))callback{
+- (void)addAlias:(NSString *)alias andCallback:(void (^)(BOOL result, id response))callback{
     [CloudPushSDK addAlias:alias withCallback:^(CloudPushCallbackResult *res){
-        callback(res.success);
+        callback(res.success, res.data?:[self resError:res]);
     }];
 }
 
 #pragma mark - 查询别名
-- (void)listAliases:(void (^)(id result))callback{
+- (void)listAliases:(void (^)(BOOL result, id response))callback{
     [CloudPushSDK listAliases:^(CloudPushCallbackResult *res) {
-        callback(res.data);
+        callback(res.success, res.data?:[self resError:res]);
     }];
 }
 
 #pragma mark - 删除别名
-- (void)removeAlias:(NSString *)alias andCallback:(void (^)(BOOL result))callback{
+- (void)removeAlias:(NSString *)alias andCallback:(void (^)(BOOL result, id response))callback{
     [CloudPushSDK removeAlias:alias withCallback:^(CloudPushCallbackResult *res) {
-        callback(res.success);
+        callback(res.success, res.data?:[self resError:res]);
     }];
 }
 
 
 /* 同步通知角标数到服务端 */
 #pragma mark - 设置角标
-- (void)syncBadgeNum:(NSUInteger)badgeNum andCallback:(void (^)(BOOL result))callback{
+- (void)syncBadgeNum:(NSUInteger)badgeNum andCallback:(void (^)(BOOL result, id response))callback{
     [CloudPushSDK syncBadgeNum:badgeNum withCallback:^(CloudPushCallbackResult *res) {
         if (res.success) {
             NSLog(@"Sync badge num: [%lu] success.", (unsigned long)badgeNum);
         } else {
             NSLog(@"Sync badge num: [%lu] failed, error: %@", (unsigned long)badgeNum, res.error);
         }
-        callback(res.success);
+        callback(res.success, res.data?:[self resError:res]);
     }];
+}
+
+
+#pragma mark - 转化阿里云推送的回应
+- (NSDictionary *)resError:(CloudPushCallbackResult *)result {
+    NSMutableDictionary *error = [NSMutableDictionary dictionary];
+    error[@"reason"] = [@(result.error.code) stringValue];
+    error[@"message"] = [result.error.userInfo valueForKey:@"Error reason"];
+    return (NSDictionary *)error;
 }
 
 @end

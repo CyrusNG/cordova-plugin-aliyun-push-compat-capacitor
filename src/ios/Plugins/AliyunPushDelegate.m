@@ -28,7 +28,7 @@ static AliyunPushDelegate* _instance = nil;
                                                  name:UIApplicationDidFinishLaunchingNotification object:nil];
 }
 
-+(void)boot:(void (^)(BOOL result))callback {
++(void)boot:(void (^)(BOOL result, id response))callback {
     // 绑定事件
     AliyunPushDelegate* _self = [AliyunPushDelegate getInstance];
     [[NSNotificationCenter defaultCenter] addObserver:_self
