@@ -344,17 +344,30 @@ android {
 ### 其他API
 ```
   /**
-   * 是否开启了通知的权限
-   * @return {boolean}
-   */
-  isEnableNotification: async function () -> boolean
-
-  /**
-   * 没有权限时，请求开通通知权限，其他路过
+   * 启动推送
    * @return {void}
    */
-  requireNotifyPermission: async function () -> void
+  boot: async function () -> void
 
+  /**
+   * 检查通知的权限
+   * @param  {boolean} force 检查到没权限时直接申请权限
+   * @return {object} flags -> granted, denied, asked, neverAsked, unknown (iOS only)
+   */
+  checkPermission: async function (force) -> object
+
+  /**
+   * 打开App设置页
+   * @return {void}
+   */
+  openAppSettings: async function () -> void
+
+  /**
+   * 没有权限时，请求开通通知权限
+   * @return {void}
+   */
+  requestPermission: async function () -> void
+  
   /**
    * 获取设备唯一标识deviceId，deviceId为阿里云移动推送过程中对设备的唯一标识（并不是设备UUID/UDID）
    * @return {string} 设备注册码
