@@ -70,15 +70,22 @@ public class AliyunPush extends CordovaPlugin {
       try {
         initPushService(cordova.getActivity().getApplication(), new CommonCallback() {
           @Override
-          public void onSuccess(String s) {
-            callbackContext.success(s);
+          public void onSuccess(String result) {
             String deviceId = pushService.getDeviceId();
             Log.d(TAG, "deviceId: " + deviceId);
+            callbackContext.success(deviceId);
           }
           @Override
-          public void onFailed(String s, String s1) {
-            resError(callbackContext, s, s1);
-            Log.d(TAG, "init cloudChannel failed -- errorCode:" + s + " -- errorMessage:" + s1);
+          public void onFailed(String reason, String message) {
+            // special success case:
+            // error -> PUSH_20110 # 已经调用注册，重复调用无效
+            if (reason.equalsIgnoreCase("PUSH_20110")) {
+              String deviceId = pushService.getDeviceId();
+              Log.d(TAG, "deviceId: " + deviceId);
+              callbackContext.success(deviceId);
+            } else {
+              resError("boot", callbackContext, reason, message);
+            }
           }
         });
       } catch (PackageManager.NameNotFoundException e) {
@@ -121,13 +128,13 @@ public class AliyunPush extends CordovaPlugin {
               account,
               new CommonCallback() {
                 @Override
-                public void onSuccess(String s) {
-                  callbackContext.success(s);
+                public void onSuccess(String result) {
+                  callbackContext.success(result);
                 }
 
                 @Override
-                public void onFailed(String s, String s1) {
-                  resError(callbackContext, s, s1);
+                public void onFailed(String reason, String message) {
+                  resError("bindAccount", callbackContext, reason, message);
                 }
               }
             );
@@ -144,13 +151,13 @@ public class AliyunPush extends CordovaPlugin {
             pushService.unbindAccount(
               new CommonCallback() {
                 @Override
-                public void onSuccess(String s) {
-                  callbackContext.success(s);
+                public void onSuccess(String result) {
+                  callbackContext.success(result);
                 }
 
                 @Override
-                public void onFailed(String s, String s1) {
-                  resError(callbackContext, s, s1);
+                public void onFailed(String reason, String message) {
+                  resError("unbindAccount", callbackContext, reason, message);
                 }
               }
             );
@@ -176,13 +183,13 @@ public class AliyunPush extends CordovaPlugin {
                 alias,
                 new CommonCallback() {
                   @Override
-                  public void onSuccess(String s) {
-                    callbackContext.success(s);
+                  public void onSuccess(String result) {
+                    callbackContext.success(result);
                   }
 
                   @Override
-                  public void onFailed(String s, String s1) {
-                    resError(callbackContext, s, s1);
+                  public void onFailed(String reason, String message) {
+                    resError("bindTags", callbackContext, reason, message);
                   }
                 }
               );
@@ -208,14 +215,14 @@ public class AliyunPush extends CordovaPlugin {
                 alias,
                 new CommonCallback() {
                   @Override
-                  public void onFailed(String s, String s1) {
-                    resError(callbackContext, s, s1);
+                  public void onFailed(String reason, String message) {
+                    resError("unbindTags", callbackContext, reason, message);
                   }
 
                   @Override
-                  public void onSuccess(String s) {
-                    LOG.d(TAG, "onSuccess:" + s);
-                    callbackContext.success(s);
+                  public void onSuccess(String result) {
+                    LOG.d(TAG, "onSuccess:" + result);
+                    callbackContext.success(result);
                   }
                 }
               );
@@ -234,14 +241,14 @@ public class AliyunPush extends CordovaPlugin {
               pushService.DEVICE_TARGET,
               new CommonCallback() {
                 @Override
-                public void onFailed(String s, String s1) {
-                  resError(callbackContext, s, s1);
+                public void onFailed(String reason, String message) {
+                  resError("listTags", callbackContext, reason, message);
                 }
 
                 @Override
-                public void onSuccess(String s) {
-                  LOG.d(TAG, "onSuccess:" + s);
-                  callbackContext.success(s);
+                public void onSuccess(String result) {
+                  LOG.d(TAG, "onSuccess:" + result);
+                  callbackContext.success(result);
                 }
               }
             );
@@ -260,14 +267,14 @@ public class AliyunPush extends CordovaPlugin {
               alias,
               new CommonCallback() {
                 @Override
-                public void onFailed(String s, String s1) {
-                  resError(callbackContext, s, s1);
+                public void onFailed(String reason, String message) {
+                  resError("addAlias", callbackContext, reason, message);
                 }
 
                 @Override
-                public void onSuccess(String s) {
-                  LOG.d(TAG, "onSuccess:" + s);
-                  callbackContext.success(s);
+                public void onSuccess(String result) {
+                  LOG.d(TAG, "onSuccess:" + result);
+                  callbackContext.success(result);
                 }
               }
             );
@@ -286,14 +293,14 @@ public class AliyunPush extends CordovaPlugin {
               alias,
               new CommonCallback() {
                 @Override
-                public void onFailed(String s, String s1) {
-                  resError(callbackContext, s, s1);
+                public void onFailed(String reason, String message) {
+                  resError("removeAlias", callbackContext, reason, message);
                 }
 
                 @Override
-                public void onSuccess(String s) {
-                  LOG.d(TAG, "onSuccess:" + s);
-                  callbackContext.success(s);
+                public void onSuccess(String result) {
+                  LOG.d(TAG, "onSuccess:" + result);
+                  callbackContext.success(result);
                 }
               }
             );
@@ -310,14 +317,14 @@ public class AliyunPush extends CordovaPlugin {
             pushService.listAliases(
               new CommonCallback() {
                 @Override
-                public void onFailed(String s, String s1) {
-                  resError(callbackContext, s, s1);
+                public void onFailed(String reason, String message) {
+                  resError("listAliases", callbackContext, reason, message);
                 }
 
                 @Override
-                public void onSuccess(String s) {
-                  LOG.d(TAG, "onSuccess:" + s);
-                  callbackContext.success(s);
+                public void onSuccess(String result) {
+                  LOG.d(TAG, "onSuccess:" + result);
+                  callbackContext.success(result);
                 }
               }
             );
@@ -331,14 +338,15 @@ public class AliyunPush extends CordovaPlugin {
   }
 
   private void resError(
+    String label,
     CallbackContext callbackContext,
     String reason,
-    String res
+    String message
   ) {
-    LOG.d(TAG, "onFailed reason:" + reason + "res:" + res);
+    LOG.d(TAG, label + " onFailed reason:" + reason + "message:" + message);
     JSONObject jsonObject = new JSONObject();
     try {
-      jsonObject.put("message", res);
+      jsonObject.put("message", message);
       jsonObject.put("reason", reason);
     } catch (JSONException e) {
       e.printStackTrace();
@@ -508,12 +516,12 @@ public class AliyunPush extends CordovaPlugin {
   private static final String PREFS_PERMISSION_FIRST_TIME_ASKING = "PREFS_PERMISSION_FIRST_TIME_ASKING";
 
   private void setPermissionFirstTimeAsking(String permission, boolean isFirstTime) {
-      SharedPreferences sharedPreference = cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_FIRST_TIME_ASKING, MODE_PRIVATE);
-      sharedPreference.edit().putBoolean(permission, isFirstTime).apply();
+    SharedPreferences sharedPreference = cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_FIRST_TIME_ASKING, MODE_PRIVATE);
+    sharedPreference.edit().putBoolean(permission, isFirstTime).apply();
   }
 
   private boolean isPermissionFirstTimeAsking(String permission) {
-      return cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_FIRST_TIME_ASKING, MODE_PRIVATE).getBoolean(permission, true);
+    return cordova.getActivity().getSharedPreferences(PREFS_PERMISSION_FIRST_TIME_ASKING, MODE_PRIVATE).getBoolean(permission, true);
   }
 
 }

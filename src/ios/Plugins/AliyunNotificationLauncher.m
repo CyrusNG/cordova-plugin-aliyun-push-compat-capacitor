@@ -174,7 +174,8 @@
             NSLog(@"Push SDK init failed, error: %@", res.error);
         }
         // result callback
-        // special success case -> error-1017 # SDK已经初始化完成
+        // special success case:
+        // error -> 1017 # SDK已经初始化完成
         if(res.success || res.error.code == 1017) {
             callback(YES, [NSNull null]);
         } else {
