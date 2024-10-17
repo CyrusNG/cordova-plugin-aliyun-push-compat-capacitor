@@ -1,6 +1,6 @@
 # cordova-plugin-aliyun-push-compat-capacitor
 - 此插件为兼容CapacitorJS而修改的Cordova插件，目的是能在CapacitorJS下使用阿里云移动推送
-- Android包含`小米`、`华为`、`荣耀`、`OPPO`、`VIVO`、`魅族` 厂商辅助通道
+- Android包含`小米`、`华为`、`荣耀`、`OPPO`、`VIVO`、`魅族` 厂商辅助通道，并支持多通道
 
 ## 版本说明
 - CapacitorJS: V5
