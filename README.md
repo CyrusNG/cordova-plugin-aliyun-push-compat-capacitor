@@ -73,7 +73,16 @@ npx cap sync
 
 步骤一：配置读取.env（[参照.env章节 - 如何在Android Studio中读取.env文件？- 步骤一](###-.env)
 
-步骤二：res/values/strings.xml中添加如下内容：（cordova中的plugin.xml有写但是capacitor不知道什么原因没有插入相应内容）
+步骤二：在项目Project下的variables.gradle添加aliyunPushDebug和aliyunPushChannelId配置：（channelId支持多个）
+```
+ext {
+    ...
+    aliyunPushDebug = false
+    aliyunPushChannelId = 'CHANNEL1,CHANNEL2'
+}
+```
+
+步骤三：res/values/strings.xml中添加如下内容：（cordova中的plugin.xml有写但是capacitor不知道什么原因没有插入相应内容）
 
 ```
 <string name="aliyun_dialog_title">消息提醒需要通知权限</string>
@@ -82,13 +91,13 @@ npx cap sync
 <string name="aliyun_dialog_positive_text">设置</string>
 ```
 
-步骤三：res/drawable/中添加通知小图标名字为：ic_notification_icon.png
+步骤四：res/drawable/中添加通知小图标名字为：ic_notification_icon.png
 
 [<img src="https://github.com/CyrusNG/cordova-plugin-aliyun-push-compat-capacitor/blob/main/screenshoot/android_add_notification_small_icon.png" width="300"/>](android_add_notification_small_icon.png)
 
 简单生成通知小图标线上工具：https://romannurik.github.io/AndroidAssetStudio/icons-notification.html
 
-步骤四：同步插件到app:
+步骤五：同步插件到app:
 
 ```
 npx cap sync
@@ -454,6 +463,8 @@ android {
   - 查看日志显示通知已经从服务器发送到客户端但没有在通知栏显示
   
     Android 8.0以上需要设置NotificationChannel，详情：https://help.aliyun.com/document_detail/67398.html
+
+    客户端和服务器设置的Channel必须一致，默认客户端端口是1!
 
   - 杀死App点击通知无法打开APP
   

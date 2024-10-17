@@ -26,6 +26,9 @@ import com.alibaba.sdk.android.push.register.MeizuRegister;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class PushUtils {
     public static final String TAG = PushUtils.class.getSimpleName();
     private SharedPreferences preference;
@@ -85,35 +88,39 @@ public class PushUtils {
        private static void createDefaultChannel(Application application) {
         // 注册NotificationChannel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            //通知渠道的id
-            Integer channelId;
+            //通知渠道的ids
+            List<String> channelList;
             ApplicationInfo appInfo;
             try {
                 appInfo = application.getPackageManager().getApplicationInfo(application.getPackageName(), PackageManager.GET_META_DATA);
-                channelId = appInfo.metaData.getInt("ALIYUN_PUSH_CHANNEL_ID", 1);
+                String channelStr = appInfo.metaData.getString("ALIYUN_PUSH_CHANNEL_ID", "1");
+              channelList = Arrays.asList(channelStr.split(","));
+
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
                 Log.d(TAG, "ALIYUN_PUSH_CHANNEL_ID NOT FOUND!");
                 return;
             }
-            //创建渠道
-            NotificationManager mNotificationManager = (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
-            NotificationChannel mChannel = new NotificationChannel(channelId.toString(), "通知", NotificationManager.IMPORTANCE_HIGH);
-            //配置通知渠道的属性
-            mChannel.setDescription("通知描述");
-            //设置通知出现时的闪灯（如果 android 设备支持的话）
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.RED);
-            //设置通知出现时的震动（如果 android 设备支持的话）
-            mChannel.enableVibration(true);
-            mChannel.setVibrationPattern(new long[]{ 500, 200, 200 });
-            //创建该通知渠道
-            mNotificationManager.createNotificationChannel(mChannel);
-            //设置8.0系统的分组和通知小图标，必须要纯色的图
-            String notiIcon = appInfo.metaData.getString("NOTIFICATION_ICON", "ic_notification_icon").trim();
-            int imageRes = application.getResources().getIdentifier("@drawable/" + notiIcon, null, application.getPackageName());
-            PushServiceFactory.getCloudPushService().setNotificationSmallIcon(imageRes);
-            PushServiceFactory.getCloudPushService().setNotificationShowInGroup(true);
+            for (String channelId : channelList) {
+              //创建渠道
+              NotificationManager mNotificationManager = (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
+              NotificationChannel mChannel = new NotificationChannel(channelId.toString(), "通知", NotificationManager.IMPORTANCE_HIGH);
+              //配置通知渠道的属性
+              mChannel.setDescription("通知描述");
+              //设置通知出现时的闪灯（如果 android 设备支持的话）
+              mChannel.enableLights(true);
+              mChannel.setLightColor(Color.RED);
+              //设置通知出现时的震动（如果 android 设备支持的话）
+              mChannel.enableVibration(true);
+              mChannel.setVibrationPattern(new long[]{500, 200, 200});
+              //创建该通知渠道
+              mNotificationManager.createNotificationChannel(mChannel);
+              //设置8.0系统的分组和通知小图标，必须要纯色的图
+              String notiIcon = appInfo.metaData.getString("NOTIFICATION_ICON", "ic_notification_icon").trim();
+              int imageRes = application.getResources().getIdentifier("@drawable/" + notiIcon, null, application.getPackageName());
+              PushServiceFactory.getCloudPushService().setNotificationSmallIcon(imageRes);
+              PushServiceFactory.getCloudPushService().setNotificationShowInGroup(true);
+            }
         }
     }
 
