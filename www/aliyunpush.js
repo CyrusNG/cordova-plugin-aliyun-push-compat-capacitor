@@ -21,11 +21,12 @@ var AliyunPush = {
 
   /**
    * 启动推送
+   * @param  {string} vendorList Android厂商通道列表
    * @return {void}
    */
-  boot: async function () {
+  boot: async function (vendorList) {
     this._bindNative('onMessage', this.onMessage);
-    return await this._callNative('boot', []);
+    return await this._callNative('boot', [vendorList]);
   },
 
   /**

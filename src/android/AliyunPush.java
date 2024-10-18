@@ -26,6 +26,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * This class echoes a string called from JavaScript.
  */
@@ -68,7 +71,9 @@ public class AliyunPush extends CordovaPlugin {
     boolean ret = false;
     if ("boot".equalsIgnoreCase(action)) {
       try {
-        initPushService(cordova.getActivity().getApplication(), new CommonCallback() {
+        final String vendorChain = args.isNull(0)? "" : args.getString(0);
+        final List<String> vendorList = Arrays.asList(vendorChain.split(","));
+        initPushService(cordova.getActivity().getApplication(), vendorList, new CommonCallback() {
           @Override
           public void onSuccess(String result) {
             String deviceId = pushService.getDeviceId();

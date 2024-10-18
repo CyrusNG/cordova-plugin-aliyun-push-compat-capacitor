@@ -42,7 +42,7 @@ public class PushUtils {
      *
      * @param application Application
      */
-    static void initPushService(final Application application, CommonCallback commonCallback) throws PackageManager.NameNotFoundException {
+    static void initPushService(final Application application, List<String> vendorList, CommonCallback commonCallback) throws PackageManager.NameNotFoundException {
         PushServiceFactory.init(application);
         final CloudPushService pushService = PushServiceFactory.getCloudPushService();
         final ApplicationInfo appInfo = application.getPackageManager().getApplicationInfo(application.getPackageName(), PackageManager.GET_META_DATA);
@@ -54,35 +54,56 @@ public class PushUtils {
 
         createDefaultChannel(application);
 
-        // 注册小米辅助通道
-        String miPushAppId  = appInfo.metaData.getString("MI_PUSH_APP_ID", "").trim();
-        String miPushAppKey  = appInfo.metaData.getString("MI_PUSH_APP_KEY", "").trim();
-        Log.i(TAG, String.format("MiPush appId:%1$s, appKey:%2$s", miPushAppId, miPushAppKey));
-        MiPushRegister.register(application, miPushAppId, miPushAppKey);
+        // 注册xiaomi辅助通道
+        if(vendorList.contains("xiaomi")) {
+          Log.d(TAG, "Register xiaomi vendor channel.");
+          String miPushAppId = appInfo.metaData.getString("MI_PUSH_APP_ID", "").trim();
+          String miPushAppKey = appInfo.metaData.getString("MI_PUSH_APP_KEY", "").trim();
+          Log.i(TAG, String.format("MiPush appId:%1$s, appKey:%2$s", miPushAppId, miPushAppKey));
+          MiPushRegister.register(application, miPushAppId, miPushAppKey);
+        }
 
-        // 注册华为辅助通道
-        HuaWeiRegister.register(application);
+        // 注册huawei辅助通道
+        if(vendorList.contains("huawei")) {
+          Log.d(TAG, "Register huawei vendor channel.");
+          HuaWeiRegister.register(application);
+        }
 
-        // 注册荣耀辅助通道
-        HonorRegister.register(application);
+        // 注册honor辅助通道
+        if(vendorList.contains("honor")) {
+          Log.d(TAG, "Register honor vendor channel.");
+          HonorRegister.register(application);
+        }
 
-        // 注册华为辅助通道
-        VivoRegister.register(application);
+        // 注册vivo辅助通道
+        if(vendorList.contains("vivo")) {
+          Log.d(TAG, "Register vivo vendor channel.");
+          VivoRegister.register(application);
+        }
 
         // 注册oppo辅助通道
-        String oppoPushAppKey  = appInfo.metaData.getString("OPPO_PUSH_APP_KEY", "").trim();
-        String oppoPushAppSecret  = appInfo.metaData.getString("OPPO_PUSH_APP_SECRET", "").trim();
-        Log.i(TAG, String.format("OPPOPush appId:%1$s, appKey:%2$s", oppoPushAppKey, oppoPushAppSecret));
-        OppoRegister.register(application, oppoPushAppKey, oppoPushAppSecret);
+        if(vendorList.contains("oppo")) {
+          Log.d(TAG, "Register oppo vendor channel.");
+          String oppoPushAppKey = appInfo.metaData.getString("OPPO_PUSH_APP_KEY", "").trim();
+          String oppoPushAppSecret = appInfo.metaData.getString("OPPO_PUSH_APP_SECRET", "").trim();
+          Log.i(TAG, String.format("OPPOPush appId:%1$s, appKey:%2$s", oppoPushAppKey, oppoPushAppSecret));
+          OppoRegister.register(application, oppoPushAppKey, oppoPushAppSecret);
+        }
 
-        // 注册魅族辅助通道
-        String mzPushAppId  = appInfo.metaData.getString("MZ_PUSH_APP_ID", "").trim();
-        String mzPushAppKey  = appInfo.metaData.getString("MZ_PUSH_APP_KEY", "").trim();
-        Log.i(TAG, String.format("MZPush appId:%1$s, appKey:%2$s", mzPushAppId, mzPushAppKey));
-        MeizuRegister.register(application, mzPushAppId, mzPushAppKey);
+        // 注册meizu辅助通道
+        if(vendorList.contains("meizu")) {
+          Log.d(TAG, "Register meizu vendor channel.");
+          String mzPushAppId = appInfo.metaData.getString("MZ_PUSH_APP_ID", "").trim();
+          String mzPushAppKey = appInfo.metaData.getString("MZ_PUSH_APP_KEY", "").trim();
+          Log.i(TAG, String.format("MZPush appId:%1$s, appKey:%2$s", mzPushAppId, mzPushAppKey));
+          MeizuRegister.register(application, mzPushAppId, mzPushAppKey);
+        }
 
         // 注册GCM辅助通道
-        // GcmRegister.register(this, sendId, applicationId);
+        //if(vendorList.contains("gcm")) {
+        //. Log.d(TAG, "Register GCM vendor channel.");
+        //  GcmRegister.register(this, sendId, applicationId);
+        //}
     }
 
        private static void createDefaultChannel(Application application) {
