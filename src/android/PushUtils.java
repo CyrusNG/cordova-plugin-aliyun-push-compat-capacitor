@@ -93,7 +93,7 @@ public class PushUtils {
             ApplicationInfo appInfo;
             try {
                 appInfo = application.getPackageManager().getApplicationInfo(application.getPackageName(), PackageManager.GET_META_DATA);
-                String channelStr = appInfo.metaData.getString("ALIYUN_PUSH_CHANNEL_ID", "1");
+                String channelStr = appInfo.metaData.getString("ALIYUN_PUSH_CHANNEL_ID", "1").trim();;
               channelList = Arrays.asList(channelStr.split(","));
 
             } catch (PackageManager.NameNotFoundException e) {
