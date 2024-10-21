@@ -309,7 +309,7 @@ android {
 ```
   Aliyun.onMessage = message => this.messageHandler(message);
   Aliyun.onError = err => this.errorHandler(err);
-  await AliyunPush.boot();
+  await AliyunPush.boot("xiaomi,huawei,honor,vivo,oppo,meizu");
 ```
 
 返回消息Message结构：
@@ -354,10 +354,10 @@ android {
 ```
   /**
    * 启动推送
-   * @param  {string} vendorList Android厂商通道列表: xiaomi,huawei,honor,vivo,oppo,meizu
+   * @param  {string} androidVendors Android厂商通道列表: xiaomi,huawei,honor,vivo,oppo,meizu
    * @return {void}
    */
-  boot: async function (vendorList) -> void
+  boot: async function (androidVendors) -> void
 
   /**
    * 检查通知的权限

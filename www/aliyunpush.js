@@ -21,12 +21,12 @@ var AliyunPush = {
 
   /**
    * 启动推送
-   * @param  {string} vendorList Android厂商通道列表
+   * @param  {string} androidVendors Android厂商通道列表: xiaomi,huawei,honor,vivo,oppo,meizu
    * @return {void}
    */
-  boot: async function (vendorList) {
+  boot: async function (androidVendors) {
     this._bindNative('onMessage', this.onMessage);
-    return await this._callNative('boot', [vendorList]);
+    return await this._callNative('boot', [androidVendors]);
   },
 
   /**
