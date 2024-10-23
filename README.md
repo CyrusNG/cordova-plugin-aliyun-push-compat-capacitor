@@ -78,7 +78,7 @@ npx cap sync
 ext {
     ...
     aliyunPushDebug = false
-    aliyunPushChannelId = 'CHANNEL1,CHANNEL2'
+    aliyunPushChannelId = 'CHANNEL1:应用公告,CHANNEL2:其他通知'
 }
 ```
 
@@ -466,6 +466,40 @@ android {
     Android 8.0以上需要设置NotificationChannel，详情：https://help.aliyun.com/document_detail/67398.html
 
     客户端和服务器设置的Channel必须一致，默认客户端端口是1!
+
+    如果配置了厂商通道，调用API时候必须加入辅助弹窗需要的参数如下：
+
+    ```
+      AndroidOpenType: ACTIVITY
+      AndroidActivity: com.example.myFirstApp.MainActivity
+      AndroidPopupActivity:com.example.myFirstApp.MainActivity
+      AndroidPopupTitle: <通知标题>
+      AndroidPopupBody: <通知内容>
+    ```
+    
+    注意：辅助弹窗仅在当前厂商通道设备的应用后台进程被清理时生效，对非接入厂商通道设备和在线的设备不生效并优先走阿里云推送。
+
+  - 厂商通道每个都不同，如何优化客户端创建的通道数量
+
+    建议先创建小米通知类别，再根据小米生成的通道ID手动设置oppo通道ID，这样可以统一客户端的通知类别。
+
+    在客户端设置variables.gradle添加aliyunPushChannelId配置:
+
+    ```
+    ext {
+      ...
+      aliyunPushChannelId = '123456:应用公告'
+    }
+    ```
+
+    在服务器调用API时候添加如下参数:
+
+    ```
+      ......
+      "androidNotificationChannel": "123456",
+      "androidNotificationXiaomiChannel": "123456"
+      ......
+    ```
 
   - 杀死App点击通知无法打开APP
   

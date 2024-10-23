@@ -228,7 +228,8 @@
 - (void)boot:(CDVInvokedUrlCommand*)command{
     [AliyunPushDelegate boot:^(BOOL result, id response) {
         if(result) {
-            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
+            NSString *deviceId =  [[AliyunNotificationLauncher sharedAliyunNotificationLauncher] getDeviceId];
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:deviceId] callbackId:command.callbackId];
         } else {
             [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:response] callbackId:command.callbackId];
         }

@@ -114,7 +114,7 @@ public class PushUtils {
             ApplicationInfo appInfo;
             try {
                 appInfo = application.getPackageManager().getApplicationInfo(application.getPackageName(), PackageManager.GET_META_DATA);
-                String channelStr = appInfo.metaData.getString("ALIYUN_PUSH_CHANNEL_ID", "1").trim();;
+                String channelStr = appInfo.metaData.getString("ALIYUN_PUSH_CHANNEL_ID", "1:通知").trim();;
               channelList = Arrays.asList(channelStr.split(","));
 
             } catch (PackageManager.NameNotFoundException e) {
@@ -122,12 +122,14 @@ public class PushUtils {
                 Log.d(TAG, "ALIYUN_PUSH_CHANNEL_ID NOT FOUND!");
                 return;
             }
-            for (String channelId : channelList) {
+            for (String channelSetting : channelList) {
+              //获取channel信息
+              String[] channelInfo = channelSetting.split(":");
               //创建渠道
               NotificationManager mNotificationManager = (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
-              NotificationChannel mChannel = new NotificationChannel(channelId.toString(), "通知", NotificationManager.IMPORTANCE_HIGH);
+              NotificationChannel mChannel = new NotificationChannel(channelInfo[0], channelInfo[1], NotificationManager.IMPORTANCE_HIGH);
               //配置通知渠道的属性
-              mChannel.setDescription("通知描述");
+              //mChannel.setDescription("通知描述");
               //设置通知出现时的闪灯（如果 android 设备支持的话）
               mChannel.enableLights(true);
               mChannel.setLightColor(Color.RED);
