@@ -34,7 +34,14 @@
             <meta-data android:name="ALIYUN_PUSH_CHANNEL_ID" android:value="\ ${ALIYUN_PUSH_CHANNEL_ID}"/>
             <meta-data android:name="NOTIFICATION_ICON" android:value="ic_notification_icon"/>
             <!-- Third-party Assist Factory Activity Config -->
-            <activity android:name="com.alipush.PopupPushActivity" android:exported="true" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            <activity android:name="com.alipush.PopupPushActivity" android:exported="true">
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <category android:name="android.intent.category.BROWSABLE" />
+                    <data android:host="${applicationId}" android:path="/thirdpush" android:scheme="agoo" />
+                </intent-filter>
+            </activity>
             <!-- Receiver Config -->
             <receiver android:exported="false" android:name="com.alipush.PushMessageReceiver">
                 <intent-filter>
