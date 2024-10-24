@@ -38,19 +38,38 @@ public class PopupPushActivity extends AndroidPopupActivity {
      * @param summary 内容
      * @param extMap  额外参数
      */
-    @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
     @Override
     protected void onSysNoticeOpened(String title, String summary, Map<String, String> extMap) {
-        Log.i(TAG, "辅助弹窗 onSysNoticeOpened, title: " + title + ", content: " + summary + ", extMap: " + extMap);
+        Log.i(TAG, "onSysNoticeOpened, title: " + title + ", content: " + summary + ", extMap: " + extMap);
         checkAction(extMap);
         savePushData(title, summary, extMap);
         finish();
     }
 
+    /**
+     * 不是推送数据的回调
+     *
+     * @param intent
+     */
+    @Override
+    public void onNotPushData(Intent intent) {
+        super.onNotPushData(intent);
+        finish();
+    }
+
+    /**
+     * 是推送数据，但是又解密失败时的回调
+     *
+     * @param intent
+     */
+    @Override
+    public void onParseFailed(Intent intent) {
+        super.onParseFailed(intent);
+        finish();
+    }
+
     private void checkAction(Map<String, String> extMap) {
-//        if (null == extMap || extMap.isEmpty()) {
-//            return;
-//        }
+        // if (null == extMap || extMap.isEmpty()) { return; }
         try {
             String openType = (extMap.get("open_type") + "").toLowerCase();
             Class<?> activityClz = null;
@@ -59,6 +78,7 @@ public class PopupPushActivity extends AndroidPopupActivity {
                     activityClz = Class.forName(Objects.requireNonNull(extMap.get("activity")));
                     break;
                 case OpenType.APPLICATION:
+                default:
                     final PackageManager pm = getApplication().getPackageManager();
                     Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
                     mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -70,9 +90,9 @@ public class PopupPushActivity extends AndroidPopupActivity {
                         }
                     }
                     break;
-                default:
-                    activityClz = com.alipush.AliyunPush.cls;
-                    break;
+                //default:
+                //    activityClz = com.alipush.AliyunPush.cls;
+                //    break;
             }
             if (activityClz != null) {
                 Intent intent = new Intent(PopupPushActivity.this, activityClz);
@@ -83,8 +103,13 @@ public class PopupPushActivity extends AndroidPopupActivity {
         }
     }
 
-    //将获取到的通知数据保存在sp中
-    @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
+    /**
+     * 将获取到的通知数据保存在sp中
+     *
+     * @param title 标题
+     * @param content 内容
+     * @param extraMap 额外参数
+     */
     private void savePushData(String title, String content, Map<String, String> extraMap) {
         try {
             JSONObject data;
@@ -97,12 +122,12 @@ public class PopupPushActivity extends AndroidPopupActivity {
             setStringData(data, "title", title);
             setStringData(data, "content", content);
 
-//            AliyunPush.pushData(data);
+            //AliyunPush.pushData(data);
             //将获取到的通知数据保存在sp中
             new PushUtils(PopupPushActivity.this).setNoticeJsonData(data.toString());
 
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "savePushData: ", e);
         }
     }
 
