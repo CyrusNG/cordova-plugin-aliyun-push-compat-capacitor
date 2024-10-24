@@ -23,7 +23,7 @@
             <meta-data android:name="MI_PUSH_APP_ID" android:value="\ ${EMAS_MI_APP_ID}"/>
             <meta-data android:name="MI_PUSH_APP_KEY" android:value="\ ${EMAS_MI_APP_KEY}"/>
             <meta-data android:name="com.huawei.hms.client.appid" android:value="appid=${EMAS_HUAWEI_APP_ID}"/>
-            <meta-data android:name="com.hihonor.push.app_id" android:value="appid=${EMAS_HONOR_APP_ID}"/>
+            <meta-data android:name="com.hihonor.push.app_id" android:value="${EMAS_HONOR_APP_ID}"/>
             <meta-data android:name="com.vivo.push.app_id" android:value="${EMAS_VIVO_APP_ID}"/>
             <meta-data android:name="com.vivo.push.api_key" android:value="${EMAS_VIVO_APP_KEY}"/>
             <meta-data android:name="OPPO_PUSH_APP_KEY" android:value="\ ${EMAS_OPPO_APP_KEY}"/>
