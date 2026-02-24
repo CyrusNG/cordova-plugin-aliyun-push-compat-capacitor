@@ -59,7 +59,7 @@
         <source-file src="src/android/AliyunPush.java" target-dir="src/com/alipush" />
         <source-file src="src/android/PushMessageReceiver.java" target-dir="src/com/alipush" />
         <source-file src="src/android/PopupPushActivity.java" target-dir="src/com/alipush" />
-        <!-- V3.9.0 framework -->
+        <!-- V3.10.1 framework -->
         <framework src="build-extras.gradle" custom="true" type="gradleReference" />
         <!-- Need add manually -->
         <!-- <config-file parent="/*" target="res/values/strings.xml">

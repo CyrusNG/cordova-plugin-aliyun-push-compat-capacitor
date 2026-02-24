@@ -7,7 +7,7 @@
 - Gradle: V8
 - xCode: V15.3
 - Android Studio: Flamingo
-- 阿里云推送SDK - Android: V3.9.0
+- 阿里云推送SDK - Android: V3.10.1
 - 阿里云推送SDK - iOS: V2.1.0
 
 ## 安装

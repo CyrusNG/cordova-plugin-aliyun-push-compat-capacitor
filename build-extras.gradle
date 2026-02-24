@@ -51,20 +51,20 @@ android {
 
 dependencies {
     //阿里云推送基础依赖
-    implementation 'com.aliyun.ams:alicloud-android-push:3.9.0'
+    implementation 'com.aliyun.ams:alicloud-android-push:3.10.1'
     //小米依赖
-    implementation 'com.aliyun.ams:alicloud-android-third-push-xiaomi:3.9.0'
+    implementation 'com.aliyun.ams:alicloud-android-third-push-xiaomi:3.10.1'
     //华为依赖
-    implementation 'com.aliyun.ams:alicloud-android-third-push-huawei:3.9.0'
+    implementation 'com.aliyun.ams:alicloud-android-third-push-huawei:3.10.1'
     //荣耀依赖
-    implementation 'com.aliyun.ams:alicloud-android-third-push-honor:3.9.0'
+    implementation 'com.aliyun.ams:alicloud-android-third-push-honor:3.10.1'
     //OPPO依赖
-    implementation 'com.aliyun.ams:alicloud-android-third-push-oppo:3.9.0'
+    implementation 'com.aliyun.ams:alicloud-android-third-push-oppo:3.10.1'
     //vivo依赖
-    implementation 'com.aliyun.ams:alicloud-android-third-push-vivo:3.9.0'
+    implementation 'com.aliyun.ams:alicloud-android-third-push-vivo:3.10.1'
     //魅族依赖
-    implementation 'com.aliyun.ams:alicloud-android-third-push-meizu:3.9.0'
+    implementation 'com.aliyun.ams:alicloud-android-third-push-meizu:3.10.1'
     //谷歌依赖
-    implementation 'com.aliyun.ams:alicloud-android-third-push-fcm:3.9.0'
+    implementation 'com.aliyun.ams:alicloud-android-third-push-fcm:3.10.1'
 
 }
