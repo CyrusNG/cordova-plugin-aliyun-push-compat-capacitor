@@ -513,6 +513,37 @@ android {
 
     检查是否配置了`network_security_config.xml`信息，具体百度了解
 
+  - 找不到华为、荣耀推送类库？
+
+    在project/build.gradle中加入华为和荣耀的仓库
+
+    ```
+    buildscript {
+
+        repositories {
+            google()
+            mavenCentral()
+
+            maven { url "https://maven.aliyun.com/repository/public" }             //阿里云仓库
+            maven { url 'https://developer.huawei.com/repo/' }                     //华为仓库
+            maven { url 'https://developer.hihonor.com/repo/' }                    //荣耀仓库
+        }
+        ...
+    }
+    ...
+    allprojects {
+        repositories {
+            google()
+            mavenCentral()
+
+            maven { url "https://maven.aliyun.com/repository/public" }             //阿里云仓库
+            maven { url 'https://developer.huawei.com/repo/' }                     //华为仓库
+            maven { url 'https://developer.hihonor.com/repo/' }                    //荣耀仓库
+        }
+    }
+    ...
+    ```
+
   - 构建`apk`时候报错`Missing classes detected while running R8.`或者启动App时闪退？
     
     这是构建时使用了混淆导致的，在`app`的`proguard-rules.pro`中添加以下内容：
